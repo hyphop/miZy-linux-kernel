@@ -4,7 +4,7 @@
 
 * Orange Pi Zero optimized kernel
 * minimized kernel size, remove unused systems and modules
-* MTD + M25P80 buildin kernel - enable onboard SPI flash boot ready
+* MTD + M25P80 build in kernel - onboard SPI-flash linux boot ready
 * onboard WiFi xr819 - xradio_wlan
 * build uncompressed kernel + LZMA GZIP LZO NONE compression via mkinitrd packed images
 * any LZMA GZIP LZO XZ initrd compression
