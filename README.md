@@ -11,7 +11,7 @@
 * any LZMA GZIP LZO XZ initrd compression
 * some systems builded as modules for more flexibility: i2c, audio, ethernet - sunxi_gmac, ir, other
     
-## Get Source Prepare and Build & Clear
+## Get Source Prepare and Build
 
     mkdir /tmp/zero_builder
     cd /tmp/zero_builder
