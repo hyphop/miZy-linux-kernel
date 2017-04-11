@@ -27,7 +27,8 @@ rm -rf $mod_out_links
 [ -d $mod_out_links ] || mkdir $mod_out_links
 [ -d $mod_out ] || mkdir $mod_out
 
-#find $mod_path -name \*.ko -exec  cp {} $mod_out \;
-find $mod_path -name \*.ko -exec  ln {} $mod_out \;
-find $mod_path -name \*.ko -exec  ln -s {} $mod_out_links \;
+find $mod_rpath -name \*.ko | ./kernel_build_modules_fix1
+
+#find $mod_path -name \*.ko -exec  ln {} $mod_out \;
+#find $mod_path -name \*.ko -exec  ln -s {} $mod_out_links \;
 

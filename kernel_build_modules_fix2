@@ -1,0 +1,48 @@
+#!/usr/bin/perl
+
+## hyphop ##
+
+our $PWD=$ENV{PWD};
+our $DIR="bin/modules.links";
+
+our $mod;
+#for $mod ( glob "$DIR/*" ) {
+while ( $mod = <STDIN> ) { chomp $mod;
+    my $l  = readlink $mod;
+    my $npath = $l =~ m{^/} ? $l : "$DIR/$l";
+    $npath =~ s{[^/]+/\.\./}{}sgi;
+    my $fpath = $npath;
+    my $fpath_ok = -f $fpath;
+#    warn "[i] $npath $fpath_ok\n";
+    warn "[i] $l => $mod\n";
+
+#    eval { symlink("",""); 1 };
+
+}
+#}
+
+
+__END__
+
+exit 0 
+
+#!/bin/sh
+
+## hyphop ##
+
+. ./,config
+
+for mod in $mod_out_links/*; do
+
+    l=`readlink $mod`
+
+    [ "${l#/}" = "$l" ] || {
+
+    l2=${l#$PWD/$mod_rpath/}
+    cmd="ln -sf ../modules/$l2 $mod"
+    echo $cmd
+    $cmd
+
+    }
+done
+
