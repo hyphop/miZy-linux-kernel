@@ -1,5 +1,6 @@
 bin
-kernel-mizy*
+kernel-mizy/*
+kernel-mizy.*/*
 logs
 ,tmp/*
 tools.bin/*
