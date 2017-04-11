@@ -2,14 +2,14 @@
 
 ## Features
 
-* optimized for Orange Pi Zero board
-* easy fast and full automated cross-compile buiding system
-* minimized size, remove unused systems and modules
+* Orange Pi Zero optimized kernel
+* minimized kernel size, remove unused systems and modules
 * MTD + M25P80 buildin kernel - enable onboard SPI flash boot ready
 * onboard WiFi xr819 - xradio_wlan
 * build uncompressed kernel + LZMA GZIP LZO NONE compression via mkinitrd packed images
 * any LZMA GZIP LZO XZ initrd compression
 * some systems builded as modules for more flexibility: i2c, audio, ethernet - sunxi_gmac, ir, other
+* easy fast and full automated cross-compilation
     
 ## Get Source Prepare and Build
 
