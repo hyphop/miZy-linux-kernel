@@ -4,6 +4,8 @@
 
 . ./,config
 
+[ -d $src ] || mkdir $src
+
 [ -f $src/._PREPARED_ ] && {
     echo "[i] prepared already!!!
 
