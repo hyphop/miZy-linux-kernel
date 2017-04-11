@@ -19,6 +19,8 @@ c=$3
 [ "$i" = "" ] && i="Image"
 ii=$wdir/$i.$c
 
+[ -f $ii ] || usage
+
 size=`stat --printf %s $ii`
 
 #sizeh=`printf %08x $size`
@@ -44,12 +46,30 @@ echo "$0 for $ii =>
 #echo "$oi => $oh"
 cp $oi $oh
 
+ddr="dd seek=3 bs=4 count=1 conv=notrunc of=$oh"
+#ddr="hd"
 
-printf "0: %.8x" $size | xxd -r -g0 | dd seek=3 bs=4 count=1 conv=notrunc of=$oh 2>/dev/null
+#[ "" ] && {
+which perl 1>/dev/null && {
+    perl -e 'syswrite STDOUT, pack N => '$size | $ddr 2>/dev/null
+    echo "$ii => $ou"
+    cat $oh $ii > $ou
+    which file 1>/dev/null && file $ou
+    exit 0
+}
+#}
 
-echo "$ii => $ou"
-cat $oh $ii > $ou
+which xxd 1>/dev/null && {
+    printf "0: %.8x" $size | xxd -r -g0 | $ddr 2>/dev/null
+    echo "$ii => $ou"
+    cat $oh $ii > $ou
+    which file 1>/dev/null && file $ou
+    exit 0
+}
 
+echo "[e] try install mkimage u-boot-tools" 1>&2
+
+exit 1
 #uImage.gzip.hdr
 
 #a=$(echo -n $sizeh  | cut -c1,2)

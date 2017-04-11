@@ -1,0 +1,3 @@
+#!/usr/bin/perl
+
+print pack "N" , shift;

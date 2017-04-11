@@ -1,10 +1,19 @@
-#!/bin/sh
+#!/bin/sh -e
 
 ## hyphop ##
 
 . ./,config
 
 ./kernel_dirs
+
+[ -d $kernel_path ] || {
+
+    echo "PREPARE SOURCE FIRST: 
+
+    ./kernel_prepare
+"
+    exit 1
+}
 
 #exit
 #nowarn="-Wno-maybe-uninitialized -Wno-unused-function -Wno-discarded-qualifiers -Wno-int-conversion -Wno-unused-variable -Wno-strict-prototypes -Wno-incompatible-pointer-types"

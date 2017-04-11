@@ -71,12 +71,15 @@ for c in $comps ; do
 	fsize $out
 	uout="u$image.$c"
 
+	# mkimages test 
+	#mkimage=""
+
 	$mkimage -A arm -O linux -C $c \
 		-T kernel -a $addr -e $addr \
 		-n 'Linux-3.4.113+' -d $tmp/$image.$c $uout || \
 	$wdir/mkimages $tmp $image $c $uout
 
-        echo -e "$c\t=>\t$out\t$size + 64 bytes"
+        echo "$c => $out $size + 64 bytes"
     }
 
 done
