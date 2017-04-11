@@ -30,8 +30,9 @@
 ## output kernel
 
     ./bin
+	
 	Image		- unpacked kernel 
-        uImage.gzip	- uboot gzip kernel image
+	uImage.gzip	- uboot gzip kernel image
         uImage.lzma	- uboot lzma kernel image, max compression, slow unpack time
         uImage.lzo	- uboot lzo  kernel image, fastest unpack time 
         uImage.none	- uboot none kernel image
