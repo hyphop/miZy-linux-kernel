@@ -1,0 +1,32 @@
+#!/usr/bin/perl
+
+for $mod ( glob "bin/modules.links/*" ) {
+    my $l  = readlink $mod;
+    warn "[i] $l => $mod\n";
+}
+
+
+__END__
+
+exit 0 
+
+#!/bin/sh
+
+## hyphop ##
+
+. ./,config
+
+for mod in $mod_out_links/*; do
+
+    l=`readlink $mod`
+
+    [ "${l#/}" = "$l" ] || {
+
+    l2=${l#$PWD/$mod_rpath/}
+    cmd="ln -sf ../modules/$l2 $mod"
+    echo $cmd
+    $cmd
+
+    }
+done
+

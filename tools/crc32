@@ -2,6 +2,50 @@
 
 ## hyphop ##
 
+=head1 NAME
+
+crc32 - calculate crc32 file checksum
+
+=head1 ABOUT
+
+possible to work without any deps or packages, as pure perl single file
+( if didnt have any usable XS pakages ) + raw packed output format
+    
+=head1 USAGE
+
+calculate crc32 file hex checksum 
+
+    ./crc32 file
+
+    47d25223
+
+calculate crc32 file raw checksum N packed
+
+    ./crc32 file N | hd
+
+    00000000  47 d2 52 23                                       |G.R#|
+    00000004
+
+calculate crc32 file raw checksum L packed
+
+    ./crc32 file L 
+
+    00000000  23 52 d2 47                                       |#R.G|
+    00000004
+
+enable some debug output
+
+    DEBUG=1 ./crc32 crc32
+    [i] use Digest::CRC::crc32
+    [i] readed 1788(1788) bytes from crc32
+    37356a1
+
+=head1 AUTHOR
+
+## hyphop ##
+
+=cut
+
 BEGIN {
     our $CRC32;
 #   $CRC32 = "digest::crc32";
@@ -16,11 +60,15 @@ BEGIN {
     warn "[i] use $CRC32\n" if $ENV{DEBUG};
 }
 
+## real code start there
+exec perldoc => $0 if ( join "" => @ARGV ) =~ /-{1,2}h(elp)?/;
+
 our $file = shift;
 our $pack = shift;
 #   $pack ||= 'N';
 
-die "[e] not found $file\n" unless -f $file;
+die "[e] undefined file! plz check $0 --help\n" unless defined $file;
+die "[e] '$file' file not found\n" unless -f $file;
 
 our $data = getfile($file);
 
