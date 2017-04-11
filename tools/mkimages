@@ -2,6 +2,8 @@
 
 ## hyphop ##
 
+## generate uboot mkimage 
+
 usage() { echo "
 
 USAGE $0
@@ -46,30 +48,36 @@ echo "$0 for $ii =>
 #echo "$oi => $oh"
 cp $oi $oh
 
-ddr="dd seek=3 bs=4 count=1 conv=notrunc of=$oh"
+ddr12="dd seek=3 bs=4 count=1 conv=notrunc of=$oh"
+ddr24="dd seek=6 bs=4 count=1 conv=notrunc of=$oh"
 #ddr="hd"
+
+# mizy uboot can accept wrong crc32
+$wd/crc32 $ii N | $ddr24  2>/dev/null
 
 #[ "" ] && {
 which perl 1>/dev/null && {
-    perl -e 'syswrite STDOUT, pack N => '$size | $ddr 2>/dev/null
+    perl -e 'syswrite STDOUT, pack N => '$size | $ddr12 2>/dev/null
     echo "$ii => $ou"
     cat $oh $ii > $ou
-    which file 1>/dev/null && file $ou
+#    which file 1>/dev/null && file $ou
     exit 0
 }
 #}
 
 which xxd 1>/dev/null && {
-    printf "0: %.8x" $size | xxd -r -g0 | $ddr 2>/dev/null
+    printf "0: %.8x" $size | xxd -r -g0 | $ddr12 2>/dev/null
     echo "$ii => $ou"
     cat $oh $ii > $ou
-    which file 1>/dev/null && file $ou
+#    which file 1>/dev/null && file $ou
     exit 0
 }
+
 
 echo "[e] try install mkimage u-boot-tools" 1>&2
 
 exit 1
+
 #uImage.gzip.hdr
 
 #a=$(echo -n $sizeh  | cut -c1,2)

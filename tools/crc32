@@ -1,0 +1,82 @@
+#!/usr/bin/perl
+
+## hyphop ##
+
+BEGIN {
+    our $CRC32;
+#   $CRC32 = "digest::crc32";
+# 49c133e6 ./crc32 Image.gzip  0.03s user 0.02s system 98% cpu 0.054 total
+    eval "require Digest::CRC" and $CRC32=Digest::CRC::crc32
+	unless defined $CRC32;
+# 49c133e6 ./crc32 Image.gzip  0.10s user 0.02s system 99% cpu 0.120 total
+    eval "require Archive::Zip" and $CRC32=Archive::Zip::computeCRC32
+	unless defined $CRC32;
+# 49c133e6 ./crc32 Image.gzip  1.74s user 0.10s system 99% cpu 1.854 total
+    $CRC32 //= "digest::crc32";
+    warn "[i] use $CRC32\n" if $ENV{DEBUG};
+}
+
+our $file = shift;
+our $pack = shift;
+#   $pack ||= 'N';
+
+die "[e] not found $file\n" unless -f $file;
+
+our $data = getfile($file);
+
+#warn "[i] ", length $data;
+unless ($pack) {
+    printf "%x\n" => $CRC32->($data)
+} else {
+    syswrite STDOUT, pack $pack, $CRC32->($data)
+}
+
+sub getfile {
+    my $f;
+    my $r;
+    my $data;
+    $r = open $f, $_[0];
+    return undef unless $r;
+    my $l = -s $_[0];
+    $r = sysread $f, $data, $l;
+    warn "[i] readed $r($l) bytes from $_[0]\n" if $ENV{DEBUG};
+    return $data;
+}
+
+
+package digest;
+
+#3 http://billauer.co.il/blog/2011/05/perl-crc32-crc-xs-module/
+## Creative Commons CC0
+
+sub crc32 {
+ my ($input, $init_value, $polynomial) = @_;
+
+ $init_value = 0 unless (defined $init_value);
+ 
+$polynomial = 0xedb88320 unless (defined $polynomial);
+
+ my @lookup_table;
+
+ for (my $i=0; $i<256; $i++) {
+   my $x = $i;
+   for (my $j=0; $j<8; $j++) {
+     if ($x & 1) {
+       $x = ($x >> 1) ^ $polynomial;
+     } else {
+       $x = $x >> 1;
+     }
+   }
+   push @lookup_table, $x;
+ }
+
+ my $crc = $init_value ^ 0xffffffff;
+
+ foreach my $x (unpack ('C*', $input)) {
+   $crc = (($crc >> 8) & 0xffffff) ^ $lookup_table[ ($crc ^ $x) & 0xff ];
+ }
+
+ $crc = $crc ^ 0xffffffff;
+
+ return $crc;
+}

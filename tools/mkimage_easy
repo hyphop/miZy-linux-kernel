@@ -30,6 +30,7 @@ image="Image"
 tmp="/tmp"
 echo "$comps"
 
+
 [ -f $image ] || {
     echo "[i] not found $image"
     exit
@@ -44,13 +45,13 @@ for c in $comps ; do
     [ "" ] || {
     case $c in
     gzip)
-	$c -7 -c $image > $out
+	[ "$have" ] || $c -7 -c $image > $out
     ;;
     lzma)
-	$c -9 -c $image > $out
+	[ "$have" ] || $c -9 -c $image > $out
     ;;
     lzo)
-	lzop -9 -c $image > $out
+	[ "$have" ] || lzop -9 -c $image > $out
     ;;
     lz4)
 	echo "$c ignored"
@@ -58,8 +59,8 @@ for c in $comps ; do
     ;;
     none)
 	#[ -s Image.$c ] || ln -s Image Image.$c
-	cp $image $out
-	fsize $out 
+	[ "$have" ] || cp $image $out
+	#fsize $out 
     ;;
     *)
 	echo "[i] undef $c compress type ignored"
@@ -67,19 +68,27 @@ for c in $comps ; do
     esac
     }
 
-    [ -f $out ] && {
+
+[ -f $out ] && {
 	fsize $out
 	uout="u$image.$c"
 
 	# mkimages test 
-	#mkimage=""
+	mkimage=""
 
 	$mkimage -A arm -O linux -C $c \
 		-T kernel -a $addr -e $addr \
-		-n 'Linux-3.4.113+' -d $tmp/$image.$c $uout || \
+		-n 'Linux-3.4.113+' -d $tmp/$image.$c $uout 1>/dev/null 2>/dev/null || \
 	$wdir/mkimages $tmp $image $c $uout
 
-        echo "$c => $out $size + 64 bytes"
-    }
+	ksize=$size
+	fsize $uout
+
+        which file 1>/dev/null && file $uout
+	
+        echo "$c => $uout $ksize bytes + 64 = $size"
+#       echo "$c => $out $size + 64 bytes"
+}
 
 done
+

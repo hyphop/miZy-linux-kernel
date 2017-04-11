@@ -6,5 +6,6 @@
 
 cd $kernel_out
 
+#have=1 ../tools/mkimage_easy 
 ../tools/mkimage_easy 
 
