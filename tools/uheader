@@ -1,0 +1,3 @@
+#!/bin/sh
+
+dd if=$1 bs=64 count=1 > $1.hdr

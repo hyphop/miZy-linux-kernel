@@ -1,0 +1,1 @@
+uImage.none.hdr: u-boot legacy uImage, Linux-3.4.113+, Linux/ARM, OS Kernel Image (Not compressed), 9060448 bytes, Thu Mar  9 22:04:09 2017, Load Address: 0x40008000, Entry Point: 0x40008000, Header CRC: 0x56232A94, Data CRC: 0x5FC929D7

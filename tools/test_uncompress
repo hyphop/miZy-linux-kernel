@@ -1,0 +1,11 @@
+#!/bin/sh
+
+echo gzip
+time gzip -dc Image.gzip > /dev/null
+echo lzma
+time lzma -dc Image.lzma > /dev/null
+echo lzo
+time lzo -dc Image.lzo > /dev/null
+echo none
+time cat Image.none > /dev/null
+

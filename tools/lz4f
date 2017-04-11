@@ -1,0 +1,28 @@
+#!/usr/bin/perl
+use Compress::LZ4Frame qw(:all);
+
+$level=shift;
+$level||=1;
+$rt=0;
+while ( $r = sysread STDIN, $data, 1000000000, length $data and  $rt+=$r and $r ) {
+}
+warn "[i] readed $rt\n";
+
+           # compress
+#my $compressed = compress($data ,$level);
+my $compressed = compress_checksum($data, $level);
+
+$cs=length $compressed;
+warn "[i] $level compressed $cs\n";
+
+
+           # or with checksum
+         #  my $compressed = compress_checksum($packed);
+
+	    
+    syswrite STDOUT, $compressed;
+           # check data
+#warn           looks_like_lz4frame($compressed);   # some true value
+
+#warn           looks_like_lz4frame($packed);       # some false value
+

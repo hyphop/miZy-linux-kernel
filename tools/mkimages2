@@ -1,0 +1,73 @@
+#!/bin/sh
+
+## hyphop ##
+
+addr=0x40008000
+#addr=0x00008000
+
+mkimage=./mkimage
+
+mkimage_clist=`$mkimage -C -h 2>&1 | grep comp | grep -Eo 'lz4|bzip2|gzip|lzma|lzo|none' | sort -u`
+
+echo "[i] mkimage compression:\n$mkimage_clist"
+#    grep 'Compression Type'
+
+#exit
+
+#Invalid Compression Type - valid names are: none, bzip2, gzip, lzma, lzo
+echo "=="
+
+l="" # default compress 
+
+uheader() {
+    dd if=$1 bs=64 count=1 > $1.hdr
+}
+
+for c in gzip lzma lzo none ; do
+#for c in lz4 ; do
+#    [ -f Image.$c ] || {
+    [ "" ] || {
+    case $c in
+    gzip)
+	echo $c
+	$c -5 -c Image > Image.$c
+    ;;
+    lzma)
+	echo $c
+	$c -1 -c Image > Image.$c
+    ;;
+    lzo)
+	echo $c
+	$c -8 -c Image > Image.$c
+    ;;
+    lz4)
+	echo $c
+    ;;
+	#lz4 --content-size Image > Image.$c
+	#cat Image | lz4 > Image.$c
+	#cat Image | ./lz4f > Image.lz4
+	#cat Image | lz4 > Image.$c
+    none)
+	[ -s Image.$c ] || ln -s Image Image.$c
+	echo $c
+    ;;
+    *)
+	echo "[i] undef cmp ignore"
+	exit 0
+    ;;
+    esac
+    }
+
+
+#./mkimage -A arm -O linux -C $c  -T kernel -a 0x40008000 -e 0x40008000 -n 'Linux-3.4.113+' -d Image.$c uImage.$c
+
+#$mkimage -A arm -O linux -C $c  -T kernel -a $addr -e $addr -n 'Linux-3.4.113+' -d Image.$c uImage.$c 
+
+#\|
+#    grep -E "compressed|Size"
+
+#uheader uImage.$c
+
+./umake Image.$c
+
+done

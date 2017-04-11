@@ -1,0 +1,1 @@
+uImage.gzip.hdr: u-boot legacy uImage, Linux-3.4.113+, Linux/ARM, OS Kernel Image (gzip), 4260677 bytes, Thu Mar  9 22:04:03 2017, Load Address: 0x40008000, Entry Point: 0x40008000, Header CRC: 0xED9BECC5, Data CRC: 0xF8D09527

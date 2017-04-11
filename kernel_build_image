@@ -1,0 +1,28 @@
+#!/bin/sh
+
+## hyphop ##
+
+. ./,config
+
+./kernel_dirs
+
+#exit
+#nowarn="-Wno-maybe-uninitialized -Wno-unused-function -Wno-discarded-qualifiers -Wno-int-conversion -Wno-unused-variable -Wno-strict-prototypes -Wno-incompatible-pointer-types"
+
+cmd="make -C $kernel_path $kernel_build_args Image"
+echo $cmd
+echo "[i] OUT: $kernel_log_out $kernel_err_out"
+
+eval time $cmd $args "1>>$kernel_log_out" "2>>$kernel_err_out" || {
+    echo "[e] check $kernel_err_out"
+    tail $kernel_err_out
+    exit 1
+}
+
+echo ""
+ls -l1 $kernel_image
+echo ""
+cmd="cp $kernel_image $kernel_out/Image"
+echo $cmd
+$cmd
+echo "[i] OK"

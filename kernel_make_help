@@ -1,0 +1,13 @@
+#!/bin/sh
+
+## hyphop ##
+
+. ./,config
+
+./kernel_dirs
+
+#exit
+## default kernel lzma 
+cmd="make -C $kernel_path $@"
+echo $cmd
+$cmd

@@ -1,0 +1,7 @@
+#!/bin/sh
+
+## hyphop ##
+
+. ./,config
+
+make -C $src clean

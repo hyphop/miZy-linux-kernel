@@ -1,0 +1,1 @@
+uImage.lzo.hdr: u-boot legacy uImage, Linux-3.4.113+, Linux/ARM, OS Kernel Image 4710527 bytes, Thu Mar  9 22:04:08 2017, Load Address: 0x40008000, Entry Point: 0x40008000, Header CRC: 0x6E4323A9, Data CRC: 0xAC1FECAB

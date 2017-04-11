@@ -1,0 +1,10 @@
+#!/bin/sh
+
+## hyphop ##
+
+. ./,config
+
+cd $kernel_out
+
+../tools/mkimage_easy 
+

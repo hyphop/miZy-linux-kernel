@@ -1,0 +1,30 @@
+#!/bin/sh
+size=`stat --printf %s $1`
+#sizeh=`printf %08x $size`
+
+echo "mkimage for $1, set size $size"
+printf "0: %.8x" $size | xxd -r -g0 | dd seek=3 bs=4 count=1 conv=notrunc of=u$1.hdr 2>/dev/null
+
+cat u$1.hdr $1 > u$1
+
+#uImage.gzip.hdr
+
+#a=$(echo -n $sizeh  | cut -c1,2)
+#b=$(echo -n $sizeh  | cut -c3,4)
+#c=$(echo -n $sizeh  | cut -c5,6)
+#d=$(echo -n $sizeh  | cut -c7,8)
+
+#echo $sizeh
+
+#echo $a $b $c $d 1>&2
+#
+#echo -n x10
+
+#echo ${sizeh:0:2}
+#echo ${sizeh:2:2}
+#echo ${sizeh:4:2}
+#echo ${sizeh:6:2}
+
+#eval sizeb="\\x${sizeh}"
+#printf "$sizeh"
+

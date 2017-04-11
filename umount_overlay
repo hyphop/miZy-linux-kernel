@@ -1,0 +1,13 @@
+#!/bin/sh
+
+## hyphop ## 
+
+. ./,config
+
+p=.
+ro_level=$p/$src.ro
+
+umount $src 
+#|| exit 1
+umount $ro_level || exit 1
+

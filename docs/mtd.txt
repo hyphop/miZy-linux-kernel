@@ -1,0 +1,64 @@
+
+36Mhz or 48Mhz
+
+#
+# Self-contained MTD device drivers
+#
+# CONFIG_MTD_DATAFLASH is not set
+CONFIG_MTD_M25P80=y
+CONFIG_M25PXX_USE_FAST_READ=y
+CONFIG_MTD_SST25L=m
+# CONFIG_MTD_SLRAM is not set
+# CONFIG_MTD_PHRAM is not set
+CONFIG_MTD_MTDRAM=m
+CONFIG_MTDRAM_TOTAL_SIZE=4096
+CONFIG_MTDRAM_ERASE_SIZE=128
+CONFIG_MTD_BLOCK2MTD=m
+
+root@miZy:/# spi_flash_read_speed 
+8+0 records in
+8+0 records out
+524288 bytes (512.0KB) copied, 0.160373 seconds, 3.1MB/s
+real    0m 0.16s
+user    0m 0.00s
+sys     0m 0.01s
+
+==DUAL MODE
+
+# CONFIG_MTD_DATAFLASH is not set
+CONFIG_MTD_M25P80=y
+#CONFIG_M25PXX_USE_FAST_READ=y
+CONFIG_M25PXX_USE_DUAL_MODE_READ=y
+CONFIG_MTD_SST25L=m
+# CONFIG_MTD_SLRAM is not set
+# CONFIG_MTD_PHRAM is not set
+CONFIG_MTD_MTDRAM=m
+CONFIG_MTDRAM_TOTAL_SIZE=4096
+CONFIG_MTDRAM_ERASE_SIZE=128
+CONFIG_MTD_BLOCK2MTD=m
+
+ramdisk_size=8192  itype=openwrt root=/dev/ram0 rw console=tty1 console=ttyS0,115200 mtdparts=W25q128-flash.0:512k(uboot),64k(script),64k(dtb),3072k(kernel),4224k(initrd),64k(user),8192k@0(8M),-@0(full) panic=10 consoleblank=0 loglevel=3 sunxi_ve_mem_reserve=0 sunxi_g2d_mem_reserve=0 sunxi_fb_mem_reserve=16 bootfrom=fel btime=2.973
+
+
+[    0.378464] m25p_probe()966 - Use the Dual Mode Read.
+[    0.378788] NorFlash ID: 0xef4018 - 0x0
+[    0.378830] m25p80 spi0.0: found W25q128, expected mx25l1606e
+[    0.378895] m25p80 spi0.0: W25q128 (16384 Kbytes)
+[    0.379505] Creating 1 MTD partitions on "spi0.0":
+[    0.379538] 0x000000000000-0x000001000000 : "NorFlash part0"
+
+root@miZy:/# dd if=/dev/mtd0 bs=4096 of=/dev/null
+4096+0 records in
+4096+0 records out
+16777216 bytes (16.0MB) copied, 2.606382 seconds, 6.1MB/s
+
+root@miZy:/# dd if=/dev/mtd0 bs=40960 of=/dev/null
+409+1 records in
+409+1 records out
+16777216 bytes (16.0MB) copied, 1.668482 seconds, 9.6MB/s
+
+root@miZy:/# dd if=/dev/mtd0 bs=65536 of=/dev/null
+256+0 records in
+256+0 records out
+16777216 bytes (16.0MB) copied, 1.625325 seconds, 9.8MB/s
+

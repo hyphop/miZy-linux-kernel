@@ -1,0 +1,20 @@
+#!/bin/sh
+
+## hyphop ##
+
+. ./,config
+
+./kernel_dirs
+
+#exit
+
+cmd="make -C $kernel_path $kernel_build_args"
+echo $cmd
+time $cmd $args
+# 1>$logs/kernel.log 
+
+
+ls -l1 $kernel_image
+cmd="cp $kernel_image $kernel_out/Image"
+echo $cmd
+$cmd

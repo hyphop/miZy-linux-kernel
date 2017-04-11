@@ -1,0 +1,22 @@
+#!/bin/sh
+
+## hyphop ##
+
+. ./,config
+
+./kernel_dirs
+
+echo "$kernel_path modules"
+
+cmd="make -C $kernel_path $kernel_build_args modules"
+
+echo $cmd
+echo "[i] OUT: $kernel_log_out $kernel_err_out"
+
+eval time $cmd $args "1>>$kernel_log_out" "2>>$kernel_err_out" || {
+    echo "[e] check $kernel_err_out"
+    tail $kernel_err_out
+    exit 1
+}
+
+echo "[i] OK"

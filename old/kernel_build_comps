@@ -1,0 +1,31 @@
+#!/bin/sh
+
+## hyphop ##
+
+. ./,config
+
+./kernel_dirs
+
+args_gzip="CONFIG_KERNEL_GZIP=y CONFIG_KERNEL_LZMA= CONFIG_KERNEL_LZO="
+args_lzma="CONFIG_KERNEL_LZMA=y CONFIG_KERNEL_LZO= CONFIG_KERNEL_GZIP="
+args_lzo="CONFIG_KERNEL_LZO=y CONFIG_KERNEL_LZMA= CONFIG_KERNEL_GZIP="
+
+
+for a in $kernel_cmp; do
+
+#cmd="make -C $kernel_path $kernel_build_args zImage"
+cmd="make -C $kernel_path $kernel_build_args"
+eval args=\$args_$a
+echo "kernel => $a => $args"
+time $cmd $args 1>$logs/kernel.log 2>$logs/kernel.err 
+$cmd $args
+
+ls -l1 $kernel_image
+cmd="cp $kernel_image $kernel_out/zImage.$a"
+echo $cmd
+$cmd
+
+make -C $src clean
+
+done
+

@@ -1,0 +1,82 @@
+#!/bin/sh
+
+## hyphop ##
+
+addr=0x40008000
+#mkimage=./mkimage
+mkimage=mkimage
+
+comps=$@
+
+[ "$comps" = "" ] && comps="gzip lzo lzma none"
+
+#mkimage_clist=`$mkimage -C -h 2>&1 | grep comp | grep -Eo 'lz4|bzip2|gzip|lzma|lzo|none' | sort -u`
+#echo "[i] mkimage compression:\n$mkimage_clist"
+#    grep 'Compression Type'
+#Invalid Compression Type - valid names are: none, bzip2, gzip, lzma, lzo
+#exit
+
+fsize() {
+    size=-1
+    size=`stat --printf %s $1`
+}
+
+#uheader() {
+#    dd if=$1 bs=64 count=1 > $1.hdr
+#}
+
+image="Image"
+
+tmp="/tmp"
+echo "$comps"
+
+[ -f $image ] || {
+    echo "[i] not found $image"
+    exit
+}
+
+wdir=`dirname $0`
+
+for c in $comps ; do
+
+    out="$tmp/$image.$c"
+
+    [ "" ] || {
+    case $c in
+    gzip)
+	$c -7 -c $image > $out
+    ;;
+    lzma)
+	$c -9 -c $image > $out
+    ;;
+    lzo)
+	lzop -9 -c $image > $out
+    ;;
+    lz4)
+	echo "$c ignored"
+	## not working 
+    ;;
+    none)
+	#[ -s Image.$c ] || ln -s Image Image.$c
+	cp $image $out
+	fsize $out 
+    ;;
+    *)
+	echo "[i] undef $c compress type ignored"
+    ;;
+    esac
+    }
+
+    [ -f $out ] && {
+	fsize $out
+	uout="u$image.$c"
+
+	$mkimage -A arm -O linux -C $c \
+		-T kernel -a $addr -e $addr \
+		-n 'Linux-3.4.113+' -d $tmp/$image.$c $uout || \
+	$wdir/mkimages $tmp $image $c $uout
+
+        echo -e "$c\t=>\t$out\t$size + 64 bytes"
+    }
+
+done

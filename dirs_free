@@ -1,0 +1,11 @@
+#!/bin/sh
+
+## hyphop ##
+
+. ./,config
+
+umount $src
+umount $src.ro
+rm -r  $src.rw
+
+

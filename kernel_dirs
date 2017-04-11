@@ -1,0 +1,16 @@
+#!/bin/sh
+
+## hyphop ##
+
+. ./,config
+
+[ -d $mod_out ] || mkdir -p $mod_out
+[ -d $mod_path ] || mkdir -p $mod_path
+
+cd ..
+[ -d $kernel_out ] || mkdir $kernel_out
+cd $kernel_out
+[ -s kernel ] || ln -s $bdir/bin kernel
+cd ..
+cd $bdir
+
