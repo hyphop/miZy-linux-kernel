@@ -24,7 +24,7 @@ NEXT:
     #toolchain-arm_cortex-a9.neon_gcc-5.3.0_musl-1.1.15_eabi.squashfs
 
     [ -s $squash_src ] || {
-	wget $squash_src_link -O ../$squash_src_name
+	wget -c $squash_src_link -O ../$squash_src_name
     }
 
     [ -s $squash_src ] && {
