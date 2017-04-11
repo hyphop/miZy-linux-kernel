@@ -30,9 +30,8 @@
 ## output kernel
 
     ./bin
-	
-	Image		- unpacked kernel 
-	uImage.gzip	- uboot gzip kernel image
+        Image		- unpacked kernel 
+        uImage.gzip	- uboot gzip kernel image
         uImage.lzma	- uboot lzma kernel image, max compression, slow unpack time
         uImage.lzo	- uboot lzo  kernel image, fastest unpack time 
         uImage.none	- uboot none kernel image
@@ -40,9 +39,9 @@
 ## output modules
 
     ./bin
-	modules		- full 
-	modules.all	- all in one dir
-	modules.links	- all in one dir symlinks
+        modules		- full 
+        modules.all	- all in one dir
+        modules.links	- all in one dir symlinks
 
 ## Clear
 
