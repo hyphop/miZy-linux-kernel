@@ -1,0 +1,106 @@
+#!/usr/bin/perl
+
+## hyphop ##
+
+our $PWD = $ENV{PWD};
+our $VAR = {};
+
+env::load(',config' => $VAR);
+
+our ( $modname, $rmod, $mod );
+
+open MODULES, ">$VAR->{kernel_out}/modules.list";
+open MODNAME, ">$VAR->{kernel_out}/modnames.list";
+
+our @MODULES;
+our @MODNAMES;
+
+while (<STDIN>) {
+
+    chomp;
+    $modname = $rmod = $mod = $_;
+    $rmod    =~ s{$PWD/}{};
+    $modname =~ s{.+/}{};
+
+#    warn "$rmod => $mod_out/$modname";
+
+    my $l1 = "$VAR->{mod_out}/$modname";
+    my $l2 = "$VAR->{mod_out_links}/$modname";
+
+    warn $l1 if -f $l1;
+    warn $l2 if -f $l2;
+
+    my $npath = $rmod;
+    $npath =~ s{^$VAR->{kernel_out}/}{};
+
+    push @MODULES, $npath;
+    push @MODNAMES, $modname;
+
+    $npath = "../$npath";
+
+    link $mod, $l1 or warn "[e] link $mod, $l1\n";
+    symlink $npath, $l2 or warn "[e] symlink $mod, $l2\n";
+
+}
+    print MODULES join "\n" => sort @MODULES;
+    print MODNAME join "\n" => sort @MODNAMES;
+
+package env;
+
+#~ sub import {
+#~     my $pkg = caller;
+#~     my $n   = shift;
+#~     my $to  = pop;
+#~     $to // $pkg::ENV //= {};
+#~     for (@_) {
+#~         load( $_, $pkg::ENV );
+#~     }
+#~     return;
+#~ }
+
+sub load {
+
+    my $in = shift;
+    my $c  = shift;
+    my $CFG;
+
+    $in =~ /([^\/]+)$/;
+    my $dir = $`;
+
+    unless ( $r = open $CFG, $in ) {
+#        warn "[w] load config $! $in $\n";
+        warn "[w] not load config $dir / $in\n";
+        return undef;
+    }
+
+    local $_;
+    my $found = 0;
+    while ( $_ = <$CFG> ) {
+	load( "$dir$1",$c ) if /^\#include\s+(.+)\n/;
+        next if /^\s*\#/;
+
+        if (/^\s*(export)?\s*(\w+)\s*\=?\s*/) {
+            my $n = $2;
+            my $v = $';
+            $v =~ s/^(\"|\')//;
+            my $q = $1;
+            $v =~ s/\s+$//;
+            $v =~ s/$q$//;
+            $v =~ s/\$(\w+)/$c->{$1}/eg;
+            if ( $v eq '' ) {
+                next;
+            }
+
+            $v =~ s/\\n/\n/sg;
+
+            $found++;
+    #       warn "[$n = $v]\n";
+    
+            $c->{$n} = $v;
+        }
+    }
+    close $CFG;
+    return $found;
+}
+
+1;
