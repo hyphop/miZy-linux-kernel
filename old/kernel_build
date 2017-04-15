@@ -8,6 +8,15 @@
 
 #exit
 
+[ -d $kernel_path ] || {
+
+    echo "PREPARE SOURCE FIRST: 
+
+    ./kernel_prepare
+"
+    exit 1
+}
+
 cmd="make -C $kernel_path $kernel_build_args"
 echo $cmd
 time $cmd $args
