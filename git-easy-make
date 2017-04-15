@@ -1,0 +1,10 @@
+#!/bin/sh
+
+mkdir /tmp/zero_builder
+cd /tmp/zero_builder
+
+git clone https://github.com/hyphop/miZy-linux-kernel.git
+cd miZy-linux-kernel
+
+./kernel_prepare
+./kernel_build_all
