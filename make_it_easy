@@ -1,4 +1,7 @@
 #!/bin/sh
+## hyphop ##
+
+## easy make script
 
 mkdir /tmp/zero_builder
 cd /tmp/zero_builder
