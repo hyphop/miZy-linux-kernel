@@ -2,10 +2,15 @@
 #!/bin/sh -e
 
 ## hyphop ##
-
+echo "[i] BUILD ALL"
+echo "[i] IMAGE"
 ./kernel_build_image $@ || exit 1
+echo "[i] IMAGES"
 ./kernel_build_images $@
+echo "[i] MODULES"
 ./kernel_build_modules $@
+echo "[i] MODULES INSTALL"
 ./kernel_build_modules_install $@
+echo "[i] MODULES STORE"
 ./kernel_build_modules_store $@
 
