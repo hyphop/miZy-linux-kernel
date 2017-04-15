@@ -42,6 +42,19 @@
 
     ./kernel_clear_all
 
+## u-boot example kmimage packed kernel load script
+
+    ...
+    # setenv kernel_file	"/boot/uImage.none"
+    # setenv kernel_file	"/boot/uImage.lzo"
+    # setenv kernel_file	"/boot/uImage.gzip"
+    setenv kernel_file	"/boot/uImage.lzma"
+    ...
+    load mmc ${mmc_boot_part} ${kernel_addr_r} ${kernel_file}
+    ...
+    bootm ${kernel_addr_r} ${ramdisk_addr_r}
+    ...
+
 ## Deps and cross compilation
 
 * toolchain-arm_cortex-a9+neon_gcc-5.3.0_musl-1.1.15_eabi

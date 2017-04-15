@@ -11,13 +11,45 @@ our ( $modname, $rmod, $mod );
 
 open MODULES, ">$VAR->{kernel_out}/modules.list";
 open MODNAME, ">$VAR->{kernel_out}/modnames.list";
+open MODDEP, ">$VAR->{kernel_out}/modules.dep";
+open MODORD, ">$VAR->{kernel_out}/modules.order";
+open MODBIN, ">$VAR->{kernel_out}/modules.builtin";
 
 our @MODULES;
 our @MODNAMES;
 
-while (<STDIN>) {
+our ($dep_file) = glob "$VAR->{mod_rpath}/lib/modules/*/modules.dep";
+open D, $dep_file;
 
-    chomp;
+our ($order_file) = glob "$VAR->{mod_rpath}/lib/modules/*/modules.order";
+open O, $order_file;
+
+our ($buildin_file) = glob "$VAR->{mod_rpath}/lib/modules/*/modules.builtin";
+open B, $buildin_file;
+
+while  (<D>) {
+    s{\S+/}{}sg;
+    #warn $_;
+    print MODDEP $_;
+}
+
+while  (<O>) {
+    s{\S+/}{}sg;
+    #warn $_;
+    print MODORD $_;
+}
+
+while  (<B>) {
+    s{\S+/}{}sg;
+    #warn $_;
+    print MODBIN $_;
+}
+
+#exit;
+
+#while (<STDIN>) {
+for ( split /\n/ => `find $VAR->{mod_rpath} -name \*.ko` ) {
+#    chomp;
     $modname = $rmod = $mod = $_;
     $rmod    =~ s{$PWD/}{};
     $modname =~ s{.+/}{};
@@ -27,8 +59,8 @@ while (<STDIN>) {
     my $l1 = "$VAR->{mod_out}/$modname";
     my $l2 = "$VAR->{mod_out_links}/$modname";
 
-    warn $l1 if -f $l1;
-    warn $l2 if -f $l2;
+#    warn $l1 if -f $l1;
+#    warn $l2 if -f $l2;
 
     my $npath = $rmod;
     $npath =~ s{^$VAR->{kernel_out}/}{};
@@ -37,6 +69,9 @@ while (<STDIN>) {
     push @MODNAMES, $modname;
 
     $npath = "../$npath";
+
+    unlink $l1 if -f $l1;
+    unlink $l2 if -f $l2;
 
     link $mod, $l1 or warn "[e] link $mod, $l1\n";
     symlink $npath, $l2 or warn "[e] symlink $mod, $l2\n";
@@ -86,6 +121,7 @@ sub load {
             my $q = $1;
             $v =~ s/\s+$//;
             $v =~ s/$q$//;
+            $v =~ s/\$\{(\w+)\}/$c->{$1}/eg;
             $v =~ s/\$(\w+)/$c->{$1}/eg;
             if ( $v eq '' ) {
                 next;
