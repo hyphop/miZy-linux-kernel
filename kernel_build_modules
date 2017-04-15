@@ -11,11 +11,11 @@ echo "$kernel_path modules"
 cmd="make -C $kernel_path $kernel_build_args modules"
 
 echo $cmd
-echo "[i] OUT: $kernel_log_out $kernel_err_out"
+echo "[i] OUT: $modules_log_out $modules_err_out"
 
-eval time $cmd $args "1>>$kernel_log_out" "2>>$kernel_err_out" || {
-    echo "[e] check $kernel_err_out"
-    tail $kernel_err_out
+eval time $cmd $args "1>>$modules_log_out" "2>>$modules_err_out" || {
+    echo "[e] check $modules_err_out"
+    tail $modules_err_out
     exit 1
 }
 

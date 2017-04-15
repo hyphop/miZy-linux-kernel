@@ -25,6 +25,10 @@ logs=logs
 
 kernel_log_out="$logs/kernel.log"
 kernel_err_out="$logs/kernel.err"
+modules_log_out="$logs/modules.log"
+modules_err_out="$logs/modules.err"
+modules_install_log_out="$logs/modules_install.log"
+modules_install_err_out="$logs/modules_install.err"
 
 
 kernel_path=linux-sun8i/sun8i

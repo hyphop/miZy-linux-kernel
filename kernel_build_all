@@ -1,10 +1,11 @@
+#!/bin/sh
 #!/bin/sh -e
 
 ## hyphop ##
 
-./kernel_build_image
-./kernel_build_images
-./kernel_build_modules
-./kernel_build_modules_install
-./kernel_build_modules_store
+./kernel_build_image $@ || exit 1
+./kernel_build_images $@
+./kernel_build_modules $@
+./kernel_build_modules_install $@
+./kernel_build_modules_store $@
 
