@@ -1,7 +1,14 @@
 #!/bin/sh
 ## hyphop ##
 
-## easy make script
+## online command - easy make 
+
+usage() { echo "USAGE:
+
+    wget https://raw.githubusercontent.com/hyphop/miZy-linux-kernel/master/make_it_easy -O- | sh -
+
+"
+}
 
 mkdir /tmp/zero_builder
 cd /tmp/zero_builder
