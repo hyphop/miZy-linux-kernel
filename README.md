@@ -22,6 +22,10 @@
     ./kernel_prepare
     ./kernel_build_all
 
+## Easy make - by one-line command
+
+    wget http://raw.githubusercontent.com/hyphop/miZy-linux-kernel/master/make_it_easy -O- | sh -
+
 ## output kernel
 
     ./bin
