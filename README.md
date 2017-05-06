@@ -3,13 +3,18 @@
 ## Features
 
 * Orange Pi Zero optimized kernel
+* Orange Pi Zero Plus2 h3 device added
 * minimized kernel size, remove unused systems and modules
 * MTD + M25P80 build in kernel - onboard SPI-flash linux boot ready
-* onboard WiFi xr819 - xradio_wlan
+* h2+ onboard WiFi XR819 - xradio_wlan
+* h3+ onboard WiFi AP6212 - dhd
+* h3+ onboard MMC ready
+* one fex/fdt config for both h2+ h3 boards
 * build uncompressed kernel + LZMA GZIP LZO NONE compression via mkinitrd packed images
 * any LZMA GZIP LZO XZ initrd compression
 * some systems builded as modules for more flexibility: i2c, audio, ethernet - sunxi_gmac, ir, other
 * easy fast and full automated cross-compilation
+* many other improvements
     
 ## Get Source Prepare and Build
 

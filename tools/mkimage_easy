@@ -74,7 +74,7 @@ for c in $comps ; do
 	uout="u$image.$c"
 
 	# mkimages test 
-	mkimage=""
+	#mkimage=""
 
 	$mkimage -A arm -O linux -C $c \
 		-T kernel -a $addr -e $addr \

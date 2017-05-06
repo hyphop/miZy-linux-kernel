@@ -1,0 +1,140 @@
+--- kernel-mizy.ro/drivers/net/wireless/xradio/platform.c	2017-01-24 00:39:46.000000000 +0700
++++ kernel-mizy.rw/drivers/net/wireless/xradio/platform.c	2017-05-06 13:46:46.908217413 +0700
+@@ -10,6 +10,9 @@
+  * it under the terms of the GNU General Public License version 2 as
+  * published by the Free Software Foundation.
+  */
++
++// ## hyphop ## fex/fdt config fix
++
+ #include <linux/version.h>
+ #include <linux/module.h>
+ #include <linux/err.h>
+@@ -38,11 +41,12 @@ static u32 wlan_irq_gpio   = 0;
+ static u32 wlan_reset_gpio = 0;
+ 
+ #if (PLATFORM_SYSCONFIG)
+-#define WIFI_CONFIG        "wifi_para"
+ #define MAX_POWER_NUM      3
+ static char * axp_name[MAX_POWER_NUM]  = {0};
+ #endif
+ 
++#define WIFI_CONFIG        "wifi_para_h2"
++
+ //--------------------------------------------------
+ //Select one platform if PLATFORM_RFKILL_PM=0.
+ //And you can platforms too.
+@@ -816,6 +820,8 @@ int xradio_wlan_power(int on)
+ 
+ #if (PLATFORM_RFKILL_PM)
+ 	//wifi_pm_power(on);
++	wifi_pm_set( WIFI_CONFIG );
++
+ 	wifi_pm(on);
+ 	mdelay(50);
+ #else //PLATFORM_RFKILL_PM
+--- kernel-mizy.ro/drivers/misc/rf_pm/wifi_pm.c	2017-01-24 00:39:46.000000000 +0700
++++ kernel-mizy.rw/drivers/misc/rf_pm/wifi_pm.c	2017-05-06 13:35:47.464194737 +0700
+@@ -10,12 +10,13 @@
+ #include <linux/scatterlist.h>
+ #include "module_pm.h"
+ 
+-static char *wifi_para = "wifi_para";
++static char *wifi_para = "wifi_para\0\0\0\0\0";
+ struct wl_func_info  wl_info;
+ 
+ extern int sunxi_gpio_req(struct gpio_config *gpio);
+ extern int rf_module_power(int onoff);
+ extern int rf_pm_gpio_ctrl(char *name, int level);
++
+ #define wifi_pm_msg(...)    do {printk("[wifi_pm]: "__VA_ARGS__);} while(0)
+ 
+ #if defined(CONFIG_ARCH_SUN6I) || defined(CONFIG_ARCH_SUN7I)
+@@ -28,6 +29,8 @@ extern int sunxi_usb_disable_hcd(__u32 u
+ extern int sunxi_usb_enable_hcd(__u32 usbc_no);
+ #endif
+ 
++EXPORT_SYMBOL(wifi_para);
++
+ void wifi_pm_power(int on)
+ {
+ 	int on_off = 0;
+@@ -46,10 +49,12 @@ void wifi_pm_power(int on)
+ }
+ EXPORT_SYMBOL(wifi_pm_power);
+ 
++
+ int wifi_pm_gpio_ctrl(char *name, int level)
+ {
+ 	int i = 0;
+ 	int gpio = 0;
++
+ 	char * gpio_name[1] = {"wl_reg_on"};
+ 
+ 	for (i = 0; i < 1; i++) {
+@@ -79,7 +84,7 @@ static void scan_device(int onoff)
+ 	int usb_id = -1;
+ 	script_item_u val;
+ 	script_item_value_type_e type;
+-	type = script_get_item("wifi_para", "wifi_sdc_id", &val);
++	type = script_get_item( wifi_para, "wifi_sdc_id", &val);
+ 	if (SCIRPT_ITEM_VALUE_TYPE_INT != type) {
+ 		wifi_pm_msg("get wifi_sdc_id failed\n");
+ 	} else {
+@@ -90,7 +95,7 @@ static void scan_device(int onoff)
+ 		sunxi_mci_rescan_card(sdc_id, onoff);
+ #endif
+ 	}
+-	type = script_get_item("wifi_para", "wifi_usbc_id", &val);
++	type = script_get_item( wifi_para , "wifi_usbc_id", &val);
+ 	if (SCIRPT_ITEM_VALUE_TYPE_INT != type) {
+ 		wifi_pm_msg("get wifi_sdc_id failed\n");
+ 	} else {
+@@ -181,7 +186,7 @@ static int wifi_pm_get_res(void)
+ 	script_item_u val;
+ 	struct gpio_config  *gpio_p = NULL;
+ 
+-	type = script_get_item(wifi_para, "wifi_used", &val);
++	type = script_get_item( wifi_para, "wifi_used", &val);
+ 	if (SCIRPT_ITEM_VALUE_TYPE_INT != type) {
+ 		wifi_pm_msg("failed to fetch wifi configuration!\n");
+ 		return -1;
+@@ -193,7 +198,7 @@ static int wifi_pm_get_res(void)
+ 	wl_info.wifi_used = val.val;
+ 
+ 	wl_info.wl_reg_on = -1;
+-	type = script_get_item(wifi_para, "wl_reg_on", &val);
++	type = script_get_item( wifi_para, "wl_reg_on", &val);
+ 	if (SCIRPT_ITEM_VALUE_TYPE_PIO!=type)
+ 		wifi_pm_msg("get wl_reg_on gpio failed\n");
+ 	else {
+@@ -264,6 +269,17 @@ out:
+ }
+ EXPORT_SYMBOL(wifi_hwaddr_from_chipid);
+ 
++int wifi_pm_set(char *name){
++//    printk("wifi_para_old %s\n", wifi_para);
++//    wifi_para = name;
++    strcpy(wifi_para, name);
++    printk("wifi_para %s\n", wifi_para);
++    wifi_pm_get_res();
++}
++
++EXPORT_SYMBOL(wifi_pm_set);
++
++
+ static int __devinit wifi_pm_probe(struct platform_device *pdev)
+ {
+ 	awwifi_procfs_attach();
+--- kernel-mizy.ro/drivers/net/wireless/xradio/platform.h	2017-01-24 00:39:46.000000000 +0700
++++ kernel-mizy.rw/drivers/net/wireless/xradio/platform.h	2017-05-06 13:21:28.548165203 +0700
+@@ -38,6 +38,9 @@ extern int sw_mci_check_r1_ready(struct
+ #endif
+ /* the rf_pm api */
+ extern int wifi_pm_gpio_ctrl(char *name, int level);
++extern int wifi_pm_set(char *name);
++extern void wifi_pm_power(int on);
++
+ /* platform interfaces */
+ int  xradio_plat_init(void);
+ void xradio_plat_deinit(void);
