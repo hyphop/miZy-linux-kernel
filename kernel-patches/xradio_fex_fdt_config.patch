@@ -1,5 +1,17 @@
+--- kernel-mizy.ro/drivers/net/wireless/xradio/platform.h	2017-01-24 00:39:46.000000000 +0700
++++ kernel-mizy.rw/drivers/net/wireless/xradio/platform.h	2017-05-06 13:21:28.548165203 +0700
+@@ -38,6 +38,9 @@ extern int sw_mci_check_r1_ready(struct
+ #endif
+ /* the rf_pm api */
+ extern int wifi_pm_gpio_ctrl(char *name, int level);
++extern int wifi_pm_set(char *name);
++extern void wifi_pm_power(int on);
++
+ /* platform interfaces */
+ int  xradio_plat_init(void);
+ void xradio_plat_deinit(void);
 --- kernel-mizy.ro/drivers/net/wireless/xradio/platform.c	2017-01-24 00:39:46.000000000 +0700
-+++ kernel-mizy.rw/drivers/net/wireless/xradio/platform.c	2017-05-06 13:46:46.908217413 +0700
++++ kernel-mizy.rw/drivers/net/wireless/xradio/platform.c	2017-05-09 11:29:34.200483919 +0700
 @@ -10,6 +10,9 @@
   * it under the terms of the GNU General Public License version 2 as
   * published by the Free Software Foundation.
@@ -10,7 +22,7 @@
  #include <linux/version.h>
  #include <linux/module.h>
  #include <linux/err.h>
-@@ -38,11 +41,12 @@ static u32 wlan_irq_gpio   = 0;
+@@ -38,11 +41,15 @@ static u32 wlan_irq_gpio   = 0;
  static u32 wlan_reset_gpio = 0;
  
  #if (PLATFORM_SYSCONFIG)
@@ -19,22 +31,102 @@
  static char * axp_name[MAX_POWER_NUM]  = {0};
  #endif
  
-+#define WIFI_CONFIG        "wifi_para_h2"
++#define WIFI_CONFIG        "wifi_para"
++#define WIFI_CONFIG_H2     "wifi_para_h2"
++
++static char *wifi_para = WIFI_CONFIG_H2 "\0\0\0\0\0";
 +
  //--------------------------------------------------
  //Select one platform if PLATFORM_RFKILL_PM=0.
  //And you can platforms too.
-@@ -816,6 +820,8 @@ int xradio_wlan_power(int on)
+@@ -711,13 +718,26 @@ static int xradio_get_syscfg(void)
+ 
+ 	/* Get SDIO/USB config. */
+ #if defined(CONFIG_XRADIO_SDIO)
+-	type = script_get_item(WIFI_CONFIG, "wifi_sdc_id", &val);
++//	type = script_get_item(WIFI_CONFIG, "wifi_sdc_id", &val);
++	type = script_get_item(wifi_para, "wifi_sdc_id", &val);
++
++	if (SCIRPT_ITEM_VALUE_TYPE_INT != type) {
++	    strcpy(wifi_para, WIFI_CONFIG);
++	    printk("xradio try %s", wifi_para);
++	    type = script_get_item(wifi_para, "wifi_sdc_id", &val);
++	} else {
++	}
++
+ 	if (SCIRPT_ITEM_VALUE_TYPE_INT != type) {
+ 		printk(KERN_ERR "failed to fetch sdio card's sdcid\n");
+ 		return -1;
+ 	}
++
++        printk("xradio use %s", wifi_para);
++
+ #elif defined(CONFIG_XRADIO_USB)
+-	type = script_get_item(WIFI_CONFIG, "wifi_usbc_id", &val);
++//	type = script_get_item(WIFI_CONFIG, "wifi_usbc_id", &val);
++	type = script_get_item(wifi_para, "wifi_usbc_id", &val);
+ 	if (SCIRPT_ITEM_VALUE_TYPE_INT != type) {
+ 		printk(KERN_ERR "failed to fetch usb's id\n");
+ 		return -1;
+@@ -726,14 +746,16 @@ static int xradio_get_syscfg(void)
+ 	wlan_bus_id = val.val;
+ 
+ 	/* Get GPIO config. */
+-	type = script_get_item(WIFI_CONFIG, "wl_reg_on", &val);
++//	type = script_get_item(WIFI_CONFIG, "wl_reg_on", &val);
++	type = script_get_item(wifi_para, "wl_reg_on", &val);
+ 	if (SCIRPT_ITEM_VALUE_TYPE_PIO != type) {
+ 		printk(KERN_ERR "failed to fetch wl_reg_on\n");
+ 		return -1;
+ 	}
+ 	wlan_reset_gpio = val.gpio.gpio;
+ 
+-	type = script_get_item(WIFI_CONFIG, "wl_host_wake", &val);
++//	type = script_get_item(WIFI_CONFIG, "wl_host_wake", &val);
++	type = script_get_item(wifi_para, "wl_host_wake", &val);
+ 	if (SCIRPT_ITEM_VALUE_TYPE_PIO != type) {
+ 		printk(KERN_ERR "failed to fetch xradio_wl_host_wake\n");
+ 		return -1;
+@@ -742,21 +764,24 @@ static int xradio_get_syscfg(void)
+ 
+ 	/* Get Power config. */
+ #if 0
+-	type = script_get_item(WIFI_CONFIG, "wifi_power", &val);
++//	type = script_get_item(WIFI_CONFIG, "wifi_power", &val);
++	type = script_get_item(wifi_para, "wifi_power", &val);
+ 	if (SCIRPT_ITEM_VALUE_TYPE_STR == type) {
+ 		axp_name[0] = val.str;
+ 		printk("wifi_power=%s\n", axp_name[0]);
+ 	} else {
+ 		printk(KERN_ERR "wifi_power not config\n");
+ 	}
+-	type = script_get_item(WIFI_CONFIG, "wifi_power_ext1", &val);
++//	type = script_get_item(WIFI_CONFIG, "wifi_power_ext1", &val);
++	type = script_get_item(wifi_para, "wifi_power_ext1", &val);
+ 	if (SCIRPT_ITEM_VALUE_TYPE_STR == type) {
+ 		axp_name[1] = val.str;
+ 		printk("wifi_power_ext1=%s\n", axp_name[1]);
+ 	} else {
+ 		printk(KERN_ERR "wifi_power_ext1 not config\n");
+ 	}
+-	type = script_get_item(WIFI_CONFIG, "wifi_power_ext2", &val);
++//	type = script_get_item(WIFI_CONFIG, "wifi_power_ext2", &val);
++	type = script_get_item(WIFI_para, "wifi_power_ext2", &val);
+ 	if (SCIRPT_ITEM_VALUE_TYPE_STR == type) {
+ 		axp_name[2] = val.str;
+ 		printk("wifi_power_ext2=%s\n", axp_name[2]);
+@@ -816,6 +841,9 @@ int xradio_wlan_power(int on)
  
  #if (PLATFORM_RFKILL_PM)
  	//wifi_pm_power(on);
-+	wifi_pm_set( WIFI_CONFIG );
++//	wifi_pm_set( WIFI_CONFIG );
++	wifi_pm_set( wifi_para );
 +
  	wifi_pm(on);
  	mdelay(50);
  #else //PLATFORM_RFKILL_PM
 --- kernel-mizy.ro/drivers/misc/rf_pm/wifi_pm.c	2017-01-24 00:39:46.000000000 +0700
-+++ kernel-mizy.rw/drivers/misc/rf_pm/wifi_pm.c	2017-05-06 13:35:47.464194737 +0700
++++ kernel-mizy.rw/drivers/misc/rf_pm/wifi_pm.c	2017-05-06 13:56:27.812237387 +0700
 @@ -10,12 +10,13 @@
  #include <linux/scatterlist.h>
  #include "module_pm.h"
@@ -126,15 +218,3 @@
  static int __devinit wifi_pm_probe(struct platform_device *pdev)
  {
  	awwifi_procfs_attach();
---- kernel-mizy.ro/drivers/net/wireless/xradio/platform.h	2017-01-24 00:39:46.000000000 +0700
-+++ kernel-mizy.rw/drivers/net/wireless/xradio/platform.h	2017-05-06 13:21:28.548165203 +0700
-@@ -38,6 +38,9 @@ extern int sw_mci_check_r1_ready(struct
- #endif
- /* the rf_pm api */
- extern int wifi_pm_gpio_ctrl(char *name, int level);
-+extern int wifi_pm_set(char *name);
-+extern void wifi_pm_power(int on);
-+
- /* platform interfaces */
- int  xradio_plat_init(void);
- void xradio_plat_deinit(void);

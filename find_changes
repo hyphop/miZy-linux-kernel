@@ -23,6 +23,7 @@ out="&1"
 
 for f in `find $w -type f -name \*.$ext -printf %P\\\\n`; do
 
+    case 
     printf "== %-32s ==> %2s\n" $f $i 1>&2
     
     eval "diff -pruN '$r/$f' '$w/$f' >$out$i"
