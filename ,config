@@ -19,7 +19,7 @@ kernel_out=bin
 kernel_cmp="lzma gzip"
 kernel_cmp="gzip lzma"
 #kernel_cmp="lzma lzo"
-kernel_build_args="-j 16"
+kernel_build_args="-j 32"
 
 logs=logs
 
