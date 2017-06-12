@@ -51,7 +51,7 @@
 
     ./kernel_clear_all
 
-## u-boot example kmimage packed kernel load script
+## Example u-boot mkimage packed kernel load script
 
     ...
     # setenv kernel_file	"/boot/uImage.none"
