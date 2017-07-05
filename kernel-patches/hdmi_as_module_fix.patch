@@ -1,0 +1,59 @@
+--- kernel-mizy.ro/sound/soc/sunxi/hdmiaudio/sunxi-sndhdmi.c	2017-01-24 00:38:52.000000000 +0700
++++ kernel-mizy.rw/sound/soc/sunxi/hdmiaudio/sunxi-sndhdmi.c	2017-07-06 05:02:45.260512507 +0700
+@@ -29,6 +29,9 @@
+ #include "sunxi-hdmitdm.h"
+ #endif
+ int hdmi_format = 1;
++// hyphop //
++EXPORT_SYMBOL(hdmi_format);
++
+ #if defined (CONFIG_ARCH_SUN9I) || defined (CONFIG_ARCH_SUN8IW7) || defined (CONFIG_ARCH_SUN8IW6)
+ /*i2s1 as master, hdmi as slave*/
+ static int i2s1_master 		= 4;
+--- kernel-mizy.ro/drivers/video/sunxi/disp2/hdmi/drv_hdmi.c	2017-01-24 00:39:46.000000000 +0700
++++ kernel-mizy.rw/drivers/video/sunxi/disp2/hdmi/drv_hdmi.c	2017-07-06 05:05:17.384517738 +0700
+@@ -557,12 +557,13 @@ extern unsigned int disp_boot_para_parse
+ 
+ __s32 Hdmi_init(void)
+ {
+-#if defined(CONFIG_SND_SUNXI_SOC_HDMIAUDIO)
++// hyphop //
++//#if defined(CONFIG_SND_SUNXI_SOC_HDMIAUDIO)
+ 	__audio_hdmi_func audio_func;
+-	#if defined (CONFIG_SND_SUNXI_SOC_AUDIOHUB_INTERFACE) || defined (CONFIG_SND_SOC_RT3261) || ((defined CONFIG_ARCH_SUN8IW7)&& (defined CONFIG_MFD_ACX00))
+-	__audio_hdmi_func audio_func_muti;
+-	#endif
+-#endif
++//	#if defined (CONFIG_SND_SUNXI_SOC_AUDIOHUB_INTERFACE) || defined (CONFIG_SND_SOC_RT3261) || ((defined CONFIG_ARCH_SUN8IW7)&& (defined CONFIG_MFD_ACX00))
++//	__audio_hdmi_func audio_func_muti;
++//	#endif
++//#endif
+ 	disp_hdmi_func disp_func;
+ 
+ 	script_item_u   val;
+@@ -639,17 +640,17 @@ __s32 Hdmi_init(void)
+ 				return err;
+ 			}
+ 			wake_up_process(HDMI_task);
+-
+-#if defined(CONFIG_SND_SUNXI_SOC_HDMIAUDIO)
++// hyphop //
++//#if defined(CONFIG_SND_SUNXI_SOC_HDMIAUDIO)
+ 			audio_func.hdmi_audio_enable = Hdmi_Audio_Enable;
+ 			audio_func.hdmi_set_audio_para = Hdmi_Set_Audio_Para;
+ 			audio_set_hdmi_func(&audio_func);
+-#if defined (CONFIG_SND_SUNXI_SOC_AUDIOHUB_INTERFACE) || defined (CONFIG_SND_SOC_RT3261) || ((defined CONFIG_ARCH_SUN8IW7)&& (defined CONFIG_MFD_ACX00))
+-			audio_func_muti.hdmi_audio_enable = Hdmi_Audio_Enable;
+-			audio_func_muti.hdmi_set_audio_para = Hdmi_Set_Audio_Para;
+-			audio_set_muti_hdmi_func(&audio_func_muti);
+-#endif
+-#endif
++//#if defined (CONFIG_SND_SUNXI_SOC_AUDIOHUB_INTERFACE) || defined (CONFIG_SND_SOC_RT3261) || ((defined CONFIG_ARCH_SUN8IW7)&& (defined CONFIG_MFD_ACX00))
++//			audio_func_muti.hdmi_audio_enable = Hdmi_Audio_Enable;
++//			audio_func_muti.hdmi_set_audio_para = Hdmi_Set_Audio_Para;
++//			audio_set_muti_hdmi_func(&audio_func_muti);
++//#endif
++//#endif
+ 			memset(&disp_func, 0, sizeof(disp_hdmi_func));
+ 			disp_func.hdmi_open = Hdmi_open;
+ 			disp_func.hdmi_close = Hdmi_close;

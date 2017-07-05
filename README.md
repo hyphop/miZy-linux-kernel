@@ -11,6 +11,7 @@
 * h3+ onboard MMC ready
 * exfat kernel module
 * one fex/fdt config for both h2+ h3 boards
+* hdmi + hdmi_audio as module for h3 board
 * build uncompressed kernel + LZMA GZIP LZO NONE compression via mkinitrd packed images
 * any LZMA GZIP LZO XZ initrd compression
 * some systems builded as modules for more flexibility: i2c, audio, ethernet - sunxi_gmac, ir, other
