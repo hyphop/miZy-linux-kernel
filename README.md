@@ -9,6 +9,7 @@
 * h2+ onboard WiFi XR819 - xradio_wlan
 * h3+ onboard WiFi AP6212 - dhd
 * h3+ onboard MMC ready
+* exfat kernel module
 * one fex/fdt config for both h2+ h3 boards
 * build uncompressed kernel + LZMA GZIP LZO NONE compression via mkinitrd packed images
 * any LZMA GZIP LZO XZ initrd compression
