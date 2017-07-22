@@ -6,6 +6,7 @@
 * Orange Pi Zero Plus2 h3 device added
 * minimized kernel size, remove unused systems and modules
 * MTD + M25P80 build in kernel - onboard SPI-flash linux boot ready
+* mmc_spi module simple usage mmc/sd cards via spi 
 * h2+ onboard WiFi XR819 - xradio_wlan
 * h3+ onboard WiFi AP6212 - dhd
 * h3+ onboard MMC ready
@@ -108,6 +109,28 @@ its easy and automated by scripts!
 
 safe compilation in vm, https://github.com/hyphop/miZy-builder
 
+## Download compiled kernel and modules
+
+https://github.com/hyphop/miZy-linux-kernel/releases
+
+examples
+	
+	# get kernel
+	# wget https://github.com/hyphop/miZy-linux-kernel/releases/download/light/miZy.linux.kernel.light.uImage.gzip -O uImage.gzip
+	#
+	# get modules
+	# wget https://github.com/hyphop/miZy-linux-kernel/releases/download/light/miZy.linux.kernel.light.modules.all.tar.gz -O /tmp/modules.tar.gz
+	#
+	# show modules list
+	# tar -tf /tmp/modules.tar.gz
+	#
+	# extract one 
+	# tar -xf /tmp/modules.tar.gz modules.all/sndspdif.ko -O > sndspdif.ko
+	# https://github.com/hyphop/miZy-linux-kernel/releases/download/light/miZy.linux.kernel.light.config
+	# 
+	# show config
+	# curl -L https://github.com/hyphop/miZy-linux-kernel/releases/download/light/miZy.linux.kernel.light.config
+	
 ## miZy 
  
 miZy - open source minimalistic tiny fast embedded Linux system, (for sunxi Orange Pi Zero, another sunxi boards maybe work too )
