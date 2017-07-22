@@ -116,18 +116,17 @@ https://github.com/hyphop/miZy-linux-kernel/releases
 examples
 	
 	# get kernel
-	# wget https://github.com/hyphop/miZy-linux-kernel/releases/download/light/miZy.linux.kernel.light.uImage.gzip -O uImage.gzip
-	#
+	wget https://github.com/hyphop/miZy-linux-kernel/releases/download/light/miZy.linux.kernel.light.uImage.gzip -O uImage.gzip
+	
 	# get modules
-	# wget https://github.com/hyphop/miZy-linux-kernel/releases/download/light/miZy.linux.kernel.light.modules.all.tar.gz -O /tmp/modules.tar.gz
+	wget https://github.com/hyphop/miZy-linux-kernel/releases/download/light/miZy.linux.kernel.light.modules.all.tar.gz -O /tmp/modules.tar.gz
 	#
 	# show modules list
-	# tar -tf /tmp/modules.tar.gz
+	tar -tf /tmp/modules.tar.gz
 	#
 	# extract one 
-	# tar -xf /tmp/modules.tar.gz modules.all/sndspdif.ko -O > sndspdif.ko
-	# https://github.com/hyphop/miZy-linux-kernel/releases/download/light/miZy.linux.kernel.light.config
-	# 
+	tar -xf /tmp/modules.tar.gz modules.all/sndspdif.ko -O > sndspdif.ko
+	 
 	# show config
 	# curl -L https://github.com/hyphop/miZy-linux-kernel/releases/download/light/miZy.linux.kernel.light.config
 	
