@@ -27,6 +27,7 @@
     cd miZy-linux-kernel
 
     ./kernel_prepare
+	# ./kernel_config default 
     ./kernel_build_all
 
 ## Easy make - by one-line command
@@ -52,6 +53,35 @@
 ## Clear
 
     ./kernel_clear_all
+
+## kernel build configs
+
+	# ... prepare
+	./kernel_config light
+	# or 
+	./kernel_config kernel-configs/light
+	# ... build
+
+## pack kernel, modules, configs, ... and other files by packages
+
+	kernel_build_packages default 
+	# generate packages
+	find /tmp/miZy.linux.kernel.default
+
+```
+/tmp/miZy.linux.kernel.default
+/tmp/miZy.linux.kernel.default/miZy.linux.kernel.default.md5sum
+/tmp/miZy.linux.kernel.default/miZy.linux.kernel.default.config.gz
+/tmp/miZy.linux.kernel.default/miZy.linux.kernel.default.config
+/tmp/miZy.linux.kernel.default/miZy.linux.kernel.default.modules.full.tar.gz
+/tmp/miZy.linux.kernel.default/miZy.linux.kernel.default.modules.all.tar.gz
+/tmp/miZy.linux.kernel.default/miZy.linux.kernel.default.uImage.none.gz
+/tmp/miZy.linux.kernel.default/miZy.linux.kernel.default.uImage.lzo
+/tmp/miZy.linux.kernel.default/miZy.linux.kernel.default.uImage.lzma
+/tmp/miZy.linux.kernel.default/miZy.linux.kernel.default.uImage.gzip
+/tmp/miZy.linux.kernel.default/miZy.linux.kernel.default.Image.gz
+/tmp/miZy.linux.kernel.default/miZy.linux.kernel.default.modules.meta.tar.gz
+```	
 
 ## Example u-boot mkimage packed kernel load script
 

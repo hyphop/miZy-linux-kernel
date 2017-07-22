@@ -4,6 +4,18 @@
 
 . ./,config
 
-echo "make defconfig $conf"
+[ "$conf" ] || conf="$1"
+[ "$conf" ] || conf="$configs/default"
 
-cp $src/default $src/.config
+[ -f "$conf" ] || {
+	[ -f "$configs/$conf" ] || {
+		echo "[e] undef config $conf and $configs/$conf" 1>&2 
+		exit 1
+	}
+	conf="$configs/$conf"
+}
+
+echo "kernel config: $conf"
+
+cat $conf > $src/.config
+

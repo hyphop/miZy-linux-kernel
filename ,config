@@ -9,6 +9,7 @@ src=kernel-mizy
 kernel_path=$src
 
 add=kernel-files
+configs=kernel-configs
 patches=kernel-patches
 
 mod_rpath=bin/modules

@@ -73,13 +73,13 @@ cd $bdir
 
 cd $src
 cat ../$patches/*.patch | patch -p1
-cp -a ../$add/* .
+#cp -a ../$add/* .
 cd ..
 
 
-./kernel_defconfig && {
+./kernel_config "$@" && {
     echo 1 > $src/._PREPARED_
-    echo "[i] ok source is prepared
+    echo "[i] ok source is prepared 
 
 NEXT:
     ./kernel_build_all

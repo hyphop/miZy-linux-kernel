@@ -1,0 +1,130 @@
+#!/bin/sh
+
+## hyphop ##
+
+. ./,config
+
+DIR=`pwd`
+
+cd $kernel_out
+
+[ "$name" ] || name="$1"
+[ "$name" ] || name="default"
+
+echo "pack as $name"
+
+## meta
+
+#out=/tmp/miZy.linux.kernel.$name
+out=/tmp/miZy.linux.kernel.$name/miZy.linux.kernel.$name
+
+d=`dirname $out`
+
+[ -d $d ] || mkdir -p $d
+
+m=$out.modules.meta.tar.gz
+
+## 
+
+for r in  $out.*; do
+#	[ "" ] && {
+	[ -f "$r" ] && {
+	rm $r
+	echo "[i] remove $r" 1>&2
+	}
+#	}
+done
+
+#exit 0 
+
+echo "[i] $m" 1>&2
+
+[ -f $m ] && rm $m
+
+tar -czf $m \
+	modules.builtin \
+	modules.dep \
+	modules.links \
+	modules.list \
+	modules.order 
+
+## raw image 
+m=$out.Image.gz
+echo "[i] $m" 1>&2
+
+[ -f $m ] && rm $m
+
+gzip -c Image > $m
+
+## packaed uimage 
+
+P="gzip lzma lzo none"
+
+for p in $P; do
+#	echo $p
+	f="uImage.$p"
+	m="$out.$f"
+	echo "[i] $m" 1>&2
+	[ -f $f ] && {
+		case $p in
+			none)
+			gzip -c $f > $m.gz
+			;;
+			*)
+			cp $f $m
+		esac
+	}
+done
+
+## modules all
+
+m=$out.modules.all.tar.gz
+echo "[i] $m" 1>&2
+
+[ -f $m ] && rm $m
+
+tar -czf $m modules.all
+
+## modules tree 
+
+m=$out.modules.full.tar.gz
+echo "[i] $m" 1>&2
+
+[ -f $m ] && rm $m
+
+tar --exclude "lib/firmware" -czf $m modules
+
+
+## configs
+m=$out.config
+echo "[i] $m" 1>&2
+
+#ls -l1 
+cd $DIR
+
+cat bin/modules/lib/modules/*/source/.config > $m
+
+## configs gz
+m=$out.config.gz
+
+echo "[i] $m" 1>&2
+
+gzip -c bin/modules/lib/modules/*/source/.config > $m
+
+## check
+
+d=`dirname $out`
+b=`basename $out`
+
+
+[ -f $out.md5sum ] && rm $out.md5sum
+
+cd $d
+
+md5sum $b* > $out.md5sum
+
+
+cd $DIR
+
+## ok
+
