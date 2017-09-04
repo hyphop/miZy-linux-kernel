@@ -11,6 +11,7 @@
 * h3+ onboard WiFi AP6212 - dhd
 * h3+ onboard MMC ready
 * exfat kernel module
+* ASIX AX88179_178A USB 3.0/2.0 Gigabit Ethernet Network Adapter kernel module
 * one fex/fdt config for both h2+ h3 boards
 * hdmi + hdmi_audio as module for h3 board
 * build uncompressed kernel + LZMA GZIP LZO NONE compression via mkinitrd packed images

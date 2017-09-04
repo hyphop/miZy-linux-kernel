@@ -71,12 +71,6 @@ cd $bdir
 #exit;
 #ls -l1 $patches/
 
-cd $src
-cat ../$patches/*.patch | patch -p1
-#cp -a ../$add/* .
-cd ..
-
-
 ./kernel_config "$@" && {
     echo 1 > $src/._PREPARED_
     echo "[i] ok source is prepared 
@@ -86,4 +80,11 @@ NEXT:
 " 1>&2
 
 }
+
+cd $src
+cat ../$patches/*.patch | patch -p1 >> ../logs/patched.log
+#cp -a ../$add/* .
+cd ..
+
+#make -C $kernel_path allyesconfig
 
