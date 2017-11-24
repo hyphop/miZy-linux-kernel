@@ -1,0 +1,23 @@
+--- kernel-mizy.ro/drivers/usb/gadget/u_uac1.c	2017-01-24 00:38:51.000000000 +0700
++++ kernel-mizy.rw/drivers/usb/gadget/u_uac1.c	2017-11-24 23:37:54.000000000 +0700
+@@ -39,6 +39,11 @@ static char *fn_cntl = FILE_CONTROL;
+ module_param(fn_cntl, charp, S_IRUGO);
+ MODULE_PARM_DESC(fn_cntl, "Control device file name");
+ 
++static int a_rate = 48000;
++module_param(a_rate, int, S_IRUGO);
++MODULE_PARM_DESC(a_rate, "audio rate");
++
++
+ /*-------------------------------------------------------------------------*/
+ 
+ /**
+@@ -122,7 +127,7 @@ static int playback_default_hw_params(st
+ 	snd->access = SNDRV_PCM_ACCESS_RW_INTERLEAVED;
+ 	snd->format = SNDRV_PCM_FORMAT_S16_LE;
+ 	snd->channels = 2;
+-	snd->rate = 48000;
++	snd->rate = a_rate;
+ 
+ 	params = kzalloc(sizeof(*params), GFP_KERNEL);
+ 	if (!params)
