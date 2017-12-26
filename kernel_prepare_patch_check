@@ -1,0 +1,3 @@
+#!/bin/sh
+
+./clear_all ; ./kernel_prepare; ./kernel_prepare_rt

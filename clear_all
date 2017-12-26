@@ -4,7 +4,7 @@
 
 . ./,config
 
-echo "[i] safety clear all uboot building data!"
+echo "[i] safety clear all building data!"
 
 ./umount_overlay
 

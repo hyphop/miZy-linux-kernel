@@ -1,0 +1,20 @@
+#!/bin/sh
+
+## hyphop ##
+
+. ./,config
+
+[ "$out" ] || out=../logs/patched-rt.log
+
+cd $src
+
+for p in ../kernel-patches-rt/*.patch; do
+echo $p
+
+patch -p1 < $p
+
+done
+
+cd ..
+
+
