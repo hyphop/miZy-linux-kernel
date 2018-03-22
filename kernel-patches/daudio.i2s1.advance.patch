@@ -1,0 +1,149 @@
+--- kernel-mizy.ro/sound/soc/sunxi/daudio1/sunxi-daudiodma1.h	2017-01-24 00:38:52.000000000 +0700
++++ kernel-mizy.rw/sound/soc/sunxi/daudio1/sunxi-daudiodma1.h	2018-03-22 23:14:50.000000000 +0700
+@@ -17,8 +17,9 @@
+ #define SUNXI_DAUDIODMA_H_
+ 
+ #undef DAUDIO_DBG
+-#if (0)
+-    #define DAUDIO_DBG(format,args...)  printk("[DAUDIO] "format,##args)    
++//## hyphop ##  enable debug message
++#if (1)
++    #define DAUDIO_DBG(format,args...)  printk("[DAUDIO 1] "format,##args)    
+ #else
+     #define DAUDIO_DBG(...)    
+ #endif
+--- kernel-mizy.ro/sound/soc/sunxi/daudio1/sunxi-snddaudio1.c	2017-01-24 00:38:52.000000000 +0700
++++ kernel-mizy.rw/sound/soc/sunxi/daudio1/sunxi-snddaudio1.c	2018-03-23 00:39:04.000000000 +0700
+@@ -38,24 +38,70 @@ static int signal_inversion 	= 0;
+ *	daudio_pcm_select == 0:-->	pcm
+ *	daudio_pcm_select == 1:-->	i2s
+ */
++
++
++// ## hyphop ##
++// add some extra control and notation
++
++// daudio_pcm_select is dir
++//
++// * snd_soc_dai_set_sysclk - configure DAI system or master clock.
++// * @dai: DAI
++// * @clk_id: DAI specific clock ID
++// * @freq: new clock frequency in Hz
++// * @dir: new clock direction - input/output.
++
+ static int sunxi_daudio_set_audio_mode(struct snd_kcontrol *kcontrol,
+ 	struct snd_ctl_elem_value *ucontrol)
+ {
+ 	daudio_pcm_select = ucontrol->value.integer.value[0];
+ 
+ 	if (daudio_pcm_select) {
++		// i2s
+ 		audio_format 			= 1;
+ 		signal_inversion 		= 1;
+ 		daudio_master 			= 4;
+ 	} else {
++		// pcm
+ 		audio_format 			= 4;
+ 		signal_inversion 		= 3;
+ 		daudio_master 			= 1;
+ 	}
+ 
++	// ## hyphop ## add
++	DAUDIO_DBG("%s,line:%d,!DIRECTION daudio_pcm_select:%d\n",\
++			__func__, __LINE__, daudio_pcm_select );
++
+ 	return 0;
+ }
+ 
++static int sunxi_daudio_set_audio_fmt(struct snd_kcontrol *kcontrol,
++	struct snd_ctl_elem_value *ucontrol)
++{
++	audio_format = ucontrol->value.integer.value[0] ? 1 : 4;
++	// ## hyphop ## add
++	DAUDIO_DBG("%s,line:%d,!FMT:%d %d\n",\
++			__func__, __LINE__, audio_format, ucontrol->value.integer.value[0] );
++}
++
++static int sunxi_daudio_set_audio_mas(struct snd_kcontrol *kcontrol,
++	struct snd_ctl_elem_value *ucontrol)
++{
++	daudio_master = ucontrol->value.integer.value[0] ? 4 : 1;
++	// ## hyphop ## add
++	DAUDIO_DBG("%s,line:%d,!MASTER:%d %d\n",\
++			__func__, __LINE__, daudio_master, ucontrol->value.integer.value[0] );
++}
++
++static int sunxi_daudio_set_audio_inv(struct snd_kcontrol *kcontrol,
++	struct snd_ctl_elem_value *ucontrol)
++{
++	signal_inversion = ucontrol->value.integer.value[0] ? 1 : 3;
++	// ## hyphop ## add
++	DAUDIO_DBG("%s,line:%d,!INVERSION:%d %d\n",\
++			__func__, __LINE__, signal_inversion, ucontrol->value.integer.value[0] );
++}
++
+ static int sunxi_daudio_get_audio_mode(struct snd_kcontrol *kcontrol,
+ 	struct snd_ctl_elem_value *ucontrol)
+ {
+@@ -63,10 +109,42 @@ static int sunxi_daudio_get_audio_mode(s
+ 	return 0;
+ }
+ 
++static int sunxi_daudio_get_audio_fmt(struct snd_kcontrol *kcontrol,
++	struct snd_ctl_elem_value *ucontrol)
++{
++	ucontrol->value.integer.value[0] = audio_format == 1 ? 1 : 0;
++	return 0;
++}
++
++static int sunxi_daudio_get_audio_mas(struct snd_kcontrol *kcontrol,
++	struct snd_ctl_elem_value *ucontrol)
++{
++	ucontrol->value.integer.value[0] = daudio_master == 4 ? 1 : 0;
++	return 0;
++}
++
++static int sunxi_daudio_get_audio_inv(struct snd_kcontrol *kcontrol,
++	struct snd_ctl_elem_value *ucontrol)
++{
++	ucontrol->value.integer.value[0] = signal_inversion == 1 ? 1 : 0;
++	return 0;
++}
++
+ /* I2s Or Pcm Audio Mode Select */
+ static const struct snd_kcontrol_new sunxi_daudio_controls[] = {
+-	SOC_SINGLE_BOOL_EXT("I2s Or Pcm Audio Mode Select format", 0,
++
++// ## hyphop //
++// ugly names but more informative
++
++	SOC_SINGLE_BOOL_EXT("Direction.0-pcm/1-i2s", 0,
+ 			sunxi_daudio_get_audio_mode, sunxi_daudio_set_audio_mode),
++	SOC_SINGLE_BOOL_EXT("Format.0-Pcm-4/1-i2s-1", 0,
++			sunxi_daudio_get_audio_fmt, sunxi_daudio_set_audio_fmt),
++	SOC_SINGLE_BOOL_EXT("Mode.0-Master-1/1-4", 0,
++			sunxi_daudio_get_audio_mas, sunxi_daudio_set_audio_mas),
++	SOC_SINGLE_BOOL_EXT("Inversion.0-3/1-1", 0,
++			sunxi_daudio_get_audio_inv, sunxi_daudio_set_audio_inv),
++
+ };
+ 
+ static int sunxi_snddaudio_hw_params(struct snd_pcm_substream *substream,
+@@ -134,6 +212,9 @@ static int sunxi_snddaudio_hw_params(str
+ 	*	signal_inversion<<8 == SND_SOC_DAIFMT_IB_NF
+ 	*	daudio_master<<12 == SND_SOC_DAIFMT_CBM_CFM
+ 	*/
++	// ## hyphop ## add
++	DAUDIO_DBG("%s,line:%d,daudio_pcm_select:%d (DIRECTION 0/1)\n",\
++			__func__, __LINE__, daudio_pcm_select );
+ 	DAUDIO_DBG("%s,line:%d,audio_format:%d,SND_SOC_DAIFMT_DSP_A:%d\n",\
+ 			__func__, __LINE__, audio_format, SND_SOC_DAIFMT_DSP_A);
+ 	DAUDIO_DBG("%s,line:%d,signal_inversion:%d,signal_inversion<<8:%d,SND_SOC_DAIFMT_IB_NF:%d\n",\
+@@ -280,6 +361,6 @@ static void __exit sunxi_snddaudio_exit(
+ }
+ module_exit(sunxi_snddaudio_exit);
+ 
+-MODULE_AUTHOR("huangxin");
++MODULE_AUTHOR("huangxin // ## hyphop ## mod");
+ MODULE_DESCRIPTION("SUNXI_snddaudio ALSA SoC audio driver");
+ MODULE_LICENSE("GPL");
