@@ -1,5 +1,8 @@
 # miZy linux kernel 3.4.113+ mod for Orange Pi Zero and other sunxi boards 
 
+<a href="https://travis-ci.com/hyphop/miZy-linux-kernel">
+<img alt="miZy_build_status" src="https://api.travis-ci.com/hyphop/miZy-linux-kernel.svg?branch=master"/></a>
+
 ## Features
 
 * Orange Pi Zero optimized kernel
