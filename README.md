@@ -25,7 +25,6 @@
 
 ## DEPS
 
-    lzop, gzip, lzma, mkimage 
     
 ## Get Source Prepare and Build
 
@@ -114,7 +113,8 @@
 
 * toolchain-arm_cortex-a9+neon_gcc-5.3.0_musl-1.1.15_eabi
 * squashfs, overlayfs | aufs
-* perl, u-boot-tools
+* perl, mkimage ( u-boot-tools )
+* lzop, gzip, lzma
 
 its easy and automated by scripts!
 
