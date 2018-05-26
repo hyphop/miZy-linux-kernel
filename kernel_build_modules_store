@@ -7,6 +7,11 @@ our $VAR = {};
 
 env::load(',config' => $VAR);
 
+-d $_ or `mkdir -p "$_"` for (
+    $VAR->{mod_out},
+    $VAR->{mod_out_links}
+);
+
 our ( $modname, $rmod, $mod );
 
 open MODULES, ">$VAR->{kernel_out}/modules.list";
@@ -73,9 +78,13 @@ for ( split /\n/ => `find $VAR->{mod_rpath} -name \*.ko` ) {
     unlink $l1 if -f $l1;
     unlink $l2 if -f $l2;
 
-    link $mod, $l1 or warn "[e] link $mod, $l1\n";
-    symlink $npath, $l2 or warn "[e] symlink $mod, $l2\n";
+    link $mod, $l1 or 
+    warn "[e] link $mod, $l1\n" and
+    exit 0;
 
+    symlink $npath, $l2 or
+    warn "[e] symlink $mod, $l2\n" and
+    exit 0;
 }
     print MODULES join "\n" => sort @MODULES;
     print MODNAME join "\n" => sort @MODNAMES;

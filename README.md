@@ -1,7 +1,6 @@
 # miZy linux kernel 3.4.113+ mod for Orange Pi Zero and other sunxi boards 
 
-<a href="https://travis-ci.com/hyphop/miZy-linux-kernel">
-<img alt="miZy_build_status" src="https://api.travis-ci.com/hyphop/miZy-linux-kernel.svg?branch=master"/></a>
+[![Build Status](https://travis-ci.com/hyphop/miZy-linux-kernel.svg?branch=master)](https://travis-ci.com/hyphop/miZy-linux-kernel)
 
 ## Features
 
@@ -33,6 +32,11 @@
 
     ./kernel_prepare
 	# ./kernel_config default 
+    ./kernel_build_all
+
+## Custom config
+
+    ./kernel_prepare light # arg is config file name => kernel-configs/light
     ./kernel_build_all
 
 ## Easy make - by one-line command
