@@ -21,6 +21,11 @@
 * some systems builded as modules for more flexibility: i2c, audio, ethernet - sunxi_gmac, ir, other
 * easy fast and full automated cross-compilation
 * many other improvements
+
+
+## DEPS
+
+    lzop, gzip, lzma, mkimage 
     
 ## Get Source Prepare and Build
 

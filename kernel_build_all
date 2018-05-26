@@ -4,6 +4,8 @@
 echo "[i] BUILD ALL"
 echo "[i] IMAGE"
 
+set -e
+
 ./kernel_build_image $@ || exit 1
 echo "[i] IMAGES"
 ./kernel_build_images $@

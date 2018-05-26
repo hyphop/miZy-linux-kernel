@@ -48,10 +48,18 @@ for c in $comps ; do
 	[ "$have" ] || $c -7 -c $image > $out
     ;;
     lzma)
-	[ "$have" ] || $c -9 -c $image > $out
+	[ "$have" ] || {
+	$c -9 -c $image > $out
+    }
     ;;
     lzo)
-	[ "$have" ] || lzop -9 -c $image > $out
+	[ "$have" ] || {
+	which lzop >/dev/null 2>&1 || {
+	    echo "[e] lzop not found, try to install it or just fix it">&2
+	    exit 1
+	}
+	lzop -9 -c $image > $out
+    }
     ;;
     lz4)
 	echo "$c ignored"
