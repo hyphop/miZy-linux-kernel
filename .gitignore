@@ -5,5 +5,4 @@ logs
 ,tmp/*
 tools.bin/*
 git_*
-syncit*
 rel
