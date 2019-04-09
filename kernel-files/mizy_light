@@ -1658,6 +1658,7 @@ CONFIG_RTL8189ES=m
 # CONFIG_RTL8189FS is not set
 # CONFIG_RTL8723BS is not set
 # CONFIG_RTL8723BS_VQ0 is not set
+CONFIG_RTL8812AU_8821AU=m
 
 #
 # WiMAX Wireless Broadband devices
