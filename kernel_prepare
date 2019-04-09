@@ -73,7 +73,7 @@ cd $bdir
 
 ./kernel_config "$@" && {
     echo 1 > $src/._PREPARED_
-    echo "[i] ok source is prepared 
+    echo "[i] ok source is prepared $@
 
 NEXT:
     ./kernel_build_all
