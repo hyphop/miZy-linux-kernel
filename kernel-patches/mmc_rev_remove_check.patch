@@ -1,3 +1,6 @@
+
+## hyphop ##
+
 --- kernel-mizy.ro/drivers/mmc/core/mmc.c	2017-01-23 20:39:42.000000000 +0300
 +++ kernel-mizy/drivers/mmc/core/mmc.c	2018-08-28 11:34:14.039186547 +0300
 @@ -262,12 +262,14 @@ static int mmc_read_ext_csd(struct mmc_c

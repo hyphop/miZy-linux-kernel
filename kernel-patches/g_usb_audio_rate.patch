@@ -1,3 +1,6 @@
+
+## hyphop ##
+
 --- kernel-mizy.ro/drivers/usb/gadget/u_uac1.c	2017-01-24 00:38:51.000000000 +0700
 +++ kernel-mizy.rw/drivers/usb/gadget/u_uac1.c	2017-11-24 23:37:54.000000000 +0700
 @@ -39,6 +39,11 @@ static char *fn_cntl = FILE_CONTROL;

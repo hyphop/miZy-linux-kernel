@@ -1,3 +1,6 @@
+
+## hyphop ##
+
 --- kernel-mizy.ro/drivers/net/wireless/xradio/platform.h	2017-01-24 00:39:46.000000000 +0700
 +++ kernel-mizy.rw/drivers/net/wireless/xradio/platform.h	2017-05-06 13:21:28.548165203 +0700
 @@ -38,6 +38,9 @@ extern int sw_mci_check_r1_ready(struct

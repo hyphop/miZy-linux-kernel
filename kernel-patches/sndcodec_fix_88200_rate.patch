@@ -1,0 +1,26 @@
+
+## hyphop ##
+
+fix missed 88200 rate
+
+--- kernel-mizy.ro/sound/soc/sunxi/audiocodec/sun8iw7_sndcodec.c	2017-01-24 00:39:46.000000000 +0700
++++ kernel-mizy.rw/sound/soc/sunxi/audiocodec/sun8iw7_sndcodec.c	2019-05-16 00:35:02.285615175 +0700
+@@ -980,6 +980,18 @@ static int sndpcm_perpare(struct snd_pcm
+ 				reg_val |=(0<<29);
+ 				writel(reg_val, baseaddr + SUNXI_DAC_FIFOC);
+ 				break;
++			case 88200:
++				if (clk_set_rate(codec_pll, 22579200)) {
++					pr_err("set codec_pll rate fail\n");
++				}
++				if (clk_set_rate(codec_moduleclk, 22579200)) {
++					pr_err("set codec_moduleclk rate fail\n");
++				}
++				reg_val = readl(baseaddr + SUNXI_DAC_FIFOC);
++				reg_val &=~(7<<29);
++				reg_val |=(7<<29);
++				writel(reg_val, baseaddr + SUNXI_DAC_FIFOC);
++				break;
+ 			case 96000:
+ 				if (clk_set_rate(codec_pll, 24576000)) {
+ 					pr_err("set codec_pll rate fail\n");

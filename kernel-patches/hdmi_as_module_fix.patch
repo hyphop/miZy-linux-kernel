@@ -1,3 +1,6 @@
+
+## hyphop ##
+
 --- kernel-mizy.ro/sound/soc/sunxi/hdmiaudio/sunxi-sndhdmi.c	2017-01-24 00:38:52.000000000 +0700
 +++ kernel-mizy.rw/sound/soc/sunxi/hdmiaudio/sunxi-sndhdmi.c	2017-07-06 05:02:45.260512507 +0700
 @@ -29,6 +29,9 @@

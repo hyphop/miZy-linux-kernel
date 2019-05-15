@@ -1,3 +1,6 @@
+
+## hyphop ##
+
 --- kernel-mizy.ro/drivers/i2c/busses/i2c-sunxi.c	2017-01-24 00:38:28.000000000 +0700
 +++ kernel-mizy.rw/drivers/i2c/busses/i2c-sunxi.c	2019-04-20 20:28:13.915483066 +0700
 @@ -431,7 +431,9 @@ static int twi_start(void __iomem *base_
