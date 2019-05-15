@@ -1,0 +1,23 @@
+--- kernel-mizy.ro/drivers/i2c/busses/i2c-sunxi.c	2017-01-24 00:38:28.000000000 +0700
++++ kernel-mizy.rw/drivers/i2c/busses/i2c-sunxi.c	2019-04-20 20:28:13.915483066 +0700
+@@ -431,7 +431,9 @@ static int twi_start(void __iomem *base_
+ 	twi_set_start(base_addr);
+ 	while((1 == twi_get_start(base_addr))&&(--timeout));
+ 	if (timeout == 0) {
+-		I2C_ERR("[i2c%d] START can't sendout!\n", bus_num);
++// ## hyphop ##
++// stop flood 
++//		I2C_ERR("[i2c%d] START can't sendout!\n", bus_num);
+ 		return SUNXI_I2C_FAIL;
+ 	}
+ 
+@@ -982,7 +984,8 @@ static int sunxi_i2c_do_xfer(struct sunx
+ 		ret = -ETIME;
+ 	}
+ 	else if (ret != num) {
+-		I2C_ERR("[i2c%d] incomplete xfer (status: 0x%x, dev addr: 0x%x)\n", i2c->bus_num, ret, msgs->addr);
++//		i2c scan make alot msg like this 
++//		I2C_ERR("[i2c%d] incomplete xfer (status: 0x%x, dev addr: 0x%x)\n", i2c->bus_num, ret, msgs->addr);
+ 		ret = -ECOMM;
+ 	}
+ out:
