@@ -1,0 +1,7 @@
+FROM ubuntu:24.04
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    build-essential gcc-arm-linux-gnueabihf binutils-arm-linux-gnueabihf \
+    bc bison flex libssl-dev libelf-dev cpio xz-utils curl ca-certificates git \
+    device-tree-compiler squashfs-tools u-boot-tools kmod zstd python3 \
+    && rm -rf /var/lib/apt/lists/*
+WORKDIR /workspace

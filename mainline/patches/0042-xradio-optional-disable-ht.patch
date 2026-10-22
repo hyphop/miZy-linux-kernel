@@ -1,0 +1,22 @@
+--- a/main.c
++++ b/main.c
+@@ -103,6 +103,11 @@
+ 	CHAN2G(14, 2484, 0),
+ };
+ 
++/* Diagnostic compatibility option; preserve HT support by default. */
++static bool disable_ht;
++module_param(disable_ht, bool, 0444);
++MODULE_PARM_DESC(disable_ht, "Disable 802.11n HT capabilities for compatibility testing");
++
+ static struct ieee80211_supported_band xradio_band_2ghz = {
+ 	.channels = xradio_2ghz_chantable,
+ 	.n_channels = ARRAY_SIZE(xradio_2ghz_chantable),
+@@ -313,6 +318,7 @@
+ 	hw->extra_tx_headroom = WSM_TX_EXTRA_HEADROOM +
+ 	                        8  /* TKIP IV */      +
+ 	                        12 /* TKIP ICV and MIC */;
++	xradio_band_2ghz.ht_cap.ht_supported = !disable_ht;
+ 	hw->wiphy->bands[NL80211_BAND_2GHZ] = &xradio_band_2ghz;
+ 	hw->queues         = AC_QUEUE_NUM;
+ 	hw->max_rates      = MAX_RATES_STAGE;

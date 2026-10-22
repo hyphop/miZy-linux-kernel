@@ -1,0 +1,14 @@
+#!/bin/sh
+# Run AFTER the saved miZy overlay has loaded; do not modify saved credentials.
+# Legacy hotplug restarts Wi-Fi while mainline is configuring it.
+printf '#!/bin/sh\nexit 0\n' > /etc/hotplug.d/net/10-wifi
+printf '#!/bin/sh\nexit 0\n' > /etc/rc.local.d/30_wifi.config.sh
+printf '#!/bin/sh\n/opt/mainline-wifi\n' > /etc/rc.local.d/31_wifi.sh
+printf '#!/bin/sh\n# CPU/DRAM managed by mainline drivers; no legacy register writes.\n' > /etc/rc.local.d/10_sys_setup_freq.sh
+printf '#!/bin/sh\n# Legacy USB setup is not used in the mainline bring-up.\n' > /etc/rc.local.d/20_usb_net.sh
+cat > /etc/rc.local.d/30_eth.sh <<'SCRIPT'
+#!/bin/sh
+ip link set eth0 up
+udhcpc -b -i eth0 -p /tmp/net.eth0.pid -x hostname:miZy
+SCRIPT
+printf '#!/bin/sh\n' > /etc/rc.local.d/10_sys_init.sh

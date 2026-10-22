@@ -1,0 +1,100 @@
+--- a/sdio.c
++++ b/sdio.c
+@@ -22,6 +22,8 @@
+ #include "sdio.h"
+ #include "main.h"
+ 
++extern void xradio_irq_handler(struct xradio_common *);
++
+ /* sdio vendor id and device id*/
+ #define SDIO_VENDOR_ID_XRADIO 0x0020
+ #define SDIO_DEVICE_ID_XRADIO 0x2281
+@@ -31,6 +33,18 @@
+ 	{ /* end: all zeroes */			},
+ };
+ 
++/* Optional native SDIO IRQ path; the GPIO path remains the default. */
++static bool use_sdio_irq;
++module_param(use_sdio_irq, bool, 0444);
++MODULE_PARM_DESC(use_sdio_irq, "Use native SDIO DAT1 interrupts instead of the GPIO wake IRQ");
++
++static void xradio_native_sdio_irq(struct sdio_func *func)
++{
++    struct xradio_common *self = sdio_get_drvdata(func);
++    if (self)
++        xradio_irq_handler(self);
++}
++
+ /* sbus_ops implemetation */
+ int sdio_data_read(struct xradio_common* self, unsigned int addr,
+                           void *dst, int count)
+@@ -165,6 +179,7 @@
+ static int sdio_probe(struct sdio_func *func,
+                       const struct sdio_device_id *id)
+ {
++	int ret;
+ 	dev_dbg(&func->dev, "XRadio Device:sdio clk=%d\n",
+ 	            func->card->host->ios.clock);
+ 	dev_dbg(&func->dev, "sdio func->class=%x\n", func->class);
+@@ -185,24 +200,57 @@
+ }
+ #endif
+ 
+-	xradio_probe_of(func);
++	if (!use_sdio_irq) {
++		ret = xradio_probe_of(func);
++		if (ret)
++			return ret;
++	}
+ 
+ 	func->card->quirks |= MMC_QUIRK_BROKEN_BYTE_MODE_512;
+ 	sdio_claim_host(func);
+-	sdio_enable_func(func);
++	ret = sdio_enable_func(func);
+ 	sdio_release_host(func);
++	if (ret)
++		return ret;
+ 
+-	sdio_enableint(func);
++	if (use_sdio_irq) {
++		sdio_claim_host(func);
++		ret = sdio_claim_irq(func, xradio_native_sdio_irq);
++		sdio_release_host(func);
++	} else {
++		ret = sdio_enableint(func);
++	}
++	if (ret)
++		goto err_disable;
+ 
+-	xradio_core_init(func);
++	dev_info(&func->dev, "IRQ transport: %s\n", use_sdio_irq ? "native SDIO" : "GPIO rising edge");
++	ret = xradio_core_init(func);
++	if (ret) {
++		if (use_sdio_irq) {
++			sdio_claim_host(func);
++			sdio_release_irq(func);
++			sdio_release_host(func);
++		}
++		goto err_disable;
++	}
+ 
+ 	return 0;
++err_disable:
++	sdio_claim_host(func);
++	sdio_disable_func(func);
++	sdio_release_host(func);
++	return ret;
+ }
+ /* Disconnect Function to be called by SDIO stack when
+  * device is disconnected */
+ static void sdio_remove(struct sdio_func *func)
+ {
+ 	struct mmc_card *card = func->card;
++	if (use_sdio_irq) {
++		sdio_claim_host(func);
++		sdio_release_irq(func);
++		sdio_release_host(func);
++	}
+ 	xradio_core_deinit(func);
+ 	sdio_claim_host(func);
+ 	sdio_disable_func(func);

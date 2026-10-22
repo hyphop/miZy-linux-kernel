@@ -1,0 +1,32 @@
+From 0a6c8c3ff71432c3297c2e00ab0371f06eda3b33 Mon Sep 17 00:00:00 2001
+From: Flaviu Tamas <me@flaviutamas.com>
+Date: Sat, 10 Oct 2026 22:59:27 -0400
+Subject: [PATCH] Classify HT reception without setting error flags
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+RX_ENC_HT is an encoding value. ORing it into flag sets
+RX_FLAG_MMIC_ERROR and leaves HT frames classified as legacy.
+Set encoding instead; preserve receive flags and MCS indices.
+
+Extracted receive-code regression fails before and passes after
+for MCS0–7, unchanged flags, and the legacy boundary.
+ARM Linux 6.18.55 module build passes.
+---
+ rx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/rx.c b/rx.c
+index 24be4f3..9528245 100644
+--- a/rx.c
++++ b/rx.c
+@@ -216,7 +216,7 @@ void xradio_rx_cb(struct xradio_vif *priv,
+ #endif
+        
+ 	if (arg->rxedRate >= 14) {
+-		hdr->flag |= RX_ENC_HT;
++		hdr->encoding = RX_ENC_HT;
+ 		hdr->rate_idx = arg->rxedRate - 14;
+ 	} else if (arg->rxedRate >= 4) {
+ 		if (hdr->band == NL80211_BAND_5GHZ)

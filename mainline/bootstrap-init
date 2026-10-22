@@ -1,0 +1,30 @@
+#!/bin/sh
+# RAM-only bring-up: read the original miZy squashfs behind its 64-byte uInitrd header.
+export PATH=/bin
+export MIZY=1 INITRAMFS=1
+mount -t proc proc /proc
+mount -t sysfs sysfs /sys
+mount -t devtmpfs devtmpfs /dev
+for n in 1 2 3 4 5 6 7 8 9 10; do
+    [ -b /dev/mtdblock4 ] && break
+    sleep 1
+done
+mkdir -p /rom /store /newroot
+/bin/busybox losetup -o 64 /dev/loop0 /dev/mtdblock4 || exec sh
+mount -t squashfs -o ro /dev/loop0 /rom || exec sh
+mount -t tmpfs tmp-overlay /store
+mkdir -p /store/upper /store/work /store/lower
+cp -a /mizy-overlay/. /store/lower/
+# Import the saved upper layer before mounting OverlayFS. Modifying a live
+# upper directory behind OverlayFS (the legacy loader) causes stale dentries.
+mkdir -p /user
+mount -t jffs2 -o ro /dev/mtdblock5 /user || exec sh
+cp -a /user/overlay/. /store/upper/ || exec sh
+/bin/busybox umount /user || exec sh
+mount -t overlay overlay -o lowerdir=/store/lower:/rom,upperdir=/store/upper,workdir=/store/work /newroot || exec sh
+mkdir -p /newroot/rom /newroot/overlay /newroot/mnt/store
+mount -o bind /store/upper /newroot/overlay
+mount -o move /rom /newroot/rom
+mount -o move /store /newroot/mnt/store
+for fs in proc sys dev; do mount -o move /$fs /newroot/$fs; done
+exec switch_root /newroot /sbin/init.openwrt

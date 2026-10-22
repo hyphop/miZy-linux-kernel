@@ -1,0 +1,142 @@
+--- a/queue.c
++++ b/queue.c
+@@ -10,9 +10,36 @@
+  */
+ 
+ #include <net/mac80211.h>
++#include <linux/moduleparam.h>
+ #include <linux/sched.h>
+ #include "xradio.h"
+ #include "queue.h"
++
++
++/* Read-only load diagnostics; reset when the module is reloaded. */
++static int load_diag_get(char *buf, const struct kernel_param *kp)
++{
++	return scnprintf(buf, PAGE_SIZE, "%d\n", atomic_read(kp->arg));
++}
++static const struct kernel_param_ops load_diag_ops = { .get = load_diag_get };
++#define LOAD_DIAG(name) \
++	static atomic_t name = ATOMIC_INIT(0); \
++	module_param_cb(name, &load_diag_ops, &name, 0444)
++static void load_diag_max(atomic_t *counter, unsigned int value)
++{
++	int old = atomic_read(counter);
++	int next = min_t(unsigned int, value, INT_MAX);
++
++	while (next > old) {
++		int seen = atomic_cmpxchg(counter, old, next);
++		if (seen == old)
++			break;
++		old = seen;
++	}
++}
++LOAD_DIAG(diag_host_queue_max_ms);
++LOAD_DIAG(diag_host_queue_over_100ms);
++LOAD_DIAG(diag_host_queue_expired);
+ 
+ /* private */ struct xradio_queue_item
+ {
+@@ -116,6 +143,7 @@
+ 		if (time_before(jiffies, item->queue_timestamp+queue->ttl))
+ 			break;
+ 
++		atomic_inc(&diag_host_queue_expired);
+ 		txpriv = &item->txpriv;
+ 		if_id = txpriv->if_id;
+ 		--queue->num_queued;
+@@ -459,6 +487,11 @@
+ 	}
+ 
+ 	if (!WARN_ON(ret)) {
++		unsigned int wait_ms = jiffies_to_msecs(jiffies - item->queue_timestamp);
++
++		load_diag_max(&diag_host_queue_max_ms, wait_ms);
++		if (wait_ms >= 100)
++			atomic_inc(&diag_host_queue_over_100ms);
+ 		*tx = (struct wsm_tx *)item->skb->data;
+ 		*tx_info = IEEE80211_SKB_CB(item->skb);
+ 		*txpriv = &item->txpriv;
+--- a/tx.c
++++ b/tx.c
+@@ -10,6 +10,7 @@
+  */
+ 
+ #include <net/mac80211.h>
++#include <linux/moduleparam.h>
+ #include <linux/etherdevice.h>
+ #include <linux/skbuff.h>
+ 
+@@ -36,6 +37,39 @@
+ #endif
+ 
+ //for test yangfh
++
++/* Read-only load diagnostics; reset when the module is reloaded. */
++static int load_diag_get(char *buf, const struct kernel_param *kp)
++{
++	return scnprintf(buf, PAGE_SIZE, "%d\n", atomic_read(kp->arg));
++}
++static const struct kernel_param_ops load_diag_ops = { .get = load_diag_get };
++#define LOAD_DIAG(name) \
++	static atomic_t name = ATOMIC_INIT(0); \
++	module_param_cb(name, &load_diag_ops, &name, 0444)
++static void load_diag_max(atomic_t *counter, unsigned int value)
++{
++	int old = atomic_read(counter);
++	int next = min_t(unsigned int, value, INT_MAX);
++
++	while (next > old) {
++		int seen = atomic_cmpxchg(counter, old, next);
++		if (seen == old)
++			break;
++		old = seen;
++	}
++}
++LOAD_DIAG(diag_fw_queue_max_us);
++LOAD_DIAG(diag_fw_media_max_us);
++LOAD_DIAG(diag_tx_confirm_count);
++LOAD_DIAG(diag_tx_confirm_failed);
++LOAD_DIAG(diag_tx_retry_exceeded);
++LOAD_DIAG(diag_tx_lifetime_exceeded);
++LOAD_DIAG(diag_tx_link_lost);
++LOAD_DIAG(diag_tx_other_failed);
++LOAD_DIAG(diag_tx_requeues);
++LOAD_DIAG(diag_tx_ack_failures);
++
+ extern u32 tx_retrylimit;
+ extern u32 tx_over_limit;
+ extern u32 tx_lower_limit;
+@@ -1040,6 +1074,32 @@
+ 	const struct xradio_txpriv *txpriv;
+ 	struct xradio_vif *priv;
+ 
++	atomic_inc(&diag_tx_confirm_count);
++	atomic_add(arg->ackFailures, &diag_tx_ack_failures);
++	switch (arg->status) {
++	case WSM_STATUS_SUCCESS:
++		break;
++	case WSM_REQUEUE:
++		atomic_inc(&diag_tx_requeues);
++		break;
++	case WSM_STATUS_RETRY_EXCEEDED:
++		atomic_inc(&diag_tx_retry_exceeded);
++		break;
++	case WSM_STATUS_TX_LIFETIME_EXCEEDED:
++		atomic_inc(&diag_tx_lifetime_exceeded);
++		break;
++	case WSM_STATUS_LINK_LOST:
++		atomic_inc(&diag_tx_link_lost);
++		break;
++	default:
++		atomic_inc(&diag_tx_other_failed);
++		break;
++	}
++	if (arg->status && arg->status != WSM_REQUEUE)
++		atomic_inc(&diag_tx_confirm_failed);
++	load_diag_max(&diag_fw_queue_max_us, arg->txQueueDelay);
++	load_diag_max(&diag_fw_media_max_us, arg->mediaDelay);
++
+ 	priv = xrwl_hwpriv_to_vifpriv(hw_priv, arg->if_id);
+ 	if (unlikely(!priv))
+ 		return;

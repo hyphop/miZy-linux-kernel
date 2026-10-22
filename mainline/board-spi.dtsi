@@ -1,0 +1,19 @@
+
+/* Preserve miZy's existing 16 MiB SPI layout during kernel migration. */
+&spi0 {
+    status = "okay";
+    flash@0 {
+        compatible = "winbond,w25q128", "jedec,spi-nor";
+        partitions {
+            compatible = "fixed-partitions";
+            #address-cells = <1>;
+            #size-cells = <1>;
+            partition@0 { label = "uboot"; reg = <0x0 0x80000>; read-only; };
+            partition@80000 { label = "script"; reg = <0x80000 0x10000>; };
+            partition@90000 { label = "dtb"; reg = <0x90000 0x10000>; };
+            partition@a0000 { label = "kernel"; reg = <0xa0000 0x300000>; };
+            partition@3a0000 { label = "initrd"; reg = <0x3a0000 0xae0000>; };
+            partition@e80000 { label = "user"; reg = <0xe80000 0x180000>; };
+        };
+    };
+};

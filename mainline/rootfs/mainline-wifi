@@ -1,0 +1,22 @@
+#!/bin/sh
+PATH=/opt:/usr/sbin:/usr/bin:/sbin:/bin
+export PATH
+. /etc/wifi.ip.conf
+DEV=${DEV:-wlan0}
+modprobe cfg80211
+modprobe mac80211
+# The legacy modprobe does not resolve crypto algorithm aliases automatically.
+for module in ctr ccm cmac ghash_generic gcm; do modprobe "$module"; done
+modprobe xradio_wlan
+for n in 1 2 3 4 5 6 7 8 9 10; do
+    [ -d "/sys/class/net/$DEV" ] && break
+    sleep 1
+done
+[ -d "/sys/class/net/$DEV" ] || { logger -t mainline-wifi 'XR819 interface missing'; exit 1; }
+ip link set "$DEV" down
+# XR819 advertises restricted MAC addresses. Provision the native MAC in DTB;
+# changing it later can make mac80211 reject bringing the interface up.
+ip link set "$DEV" up
+iwconfig "$DEV" power off 2>/dev/null
+wpa_supplicant -Dnl80211 -B -i"$DEV" -P"/tmp/wpa.$DEV.pid" -c/etc/wifi.net.conf
+wpa_cli -i"$DEV" -B -a /opt/wpa_script

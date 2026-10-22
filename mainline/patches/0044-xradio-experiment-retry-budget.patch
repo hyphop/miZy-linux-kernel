@@ -1,0 +1,24 @@
+Subject: [EXPERIMENT] Raise firmware TX retry ceilings to 15 attempts
+
+The original policy sets both firmware retry ceilings from the default short
+retry limit (7). Compare a ceiling of 15 while retaining the existing rate
+policy, its termination flag, and mac80211 rate selection. This does not force
+15 attempts for every frame: a shorter policy can terminate earlier.
+
+This opt-in experiment trades additional radio attempts for fewer failed TX
+confirmations. It is not an upstream fix or a promise of TLS deadlines.
+
+--- a/tx.c
++++ b/tx.c
+@@ -366,9 +366,9 @@
+ 			struct wsm_set_tx_rate_retry_policy_policy *dst =
+ 				&arg.tbl[arg.hdr.numTxRatePolicies];
+ 			dst->policyIndex = i;
+-			dst->shortRetryCount = hw_priv->short_frame_max_tx_count-1;
++			dst->shortRetryCount = 14; /* experiment: 15 total attempts */
+ 			//only RTS need use longRetryCount, should be short_frame.
+-			dst->longRetryCount = hw_priv->short_frame_max_tx_count-1;
++			dst->longRetryCount = 14;
+ 			
+ 			/* BIT(2) - Terminate retries when Tx rate retry policy
+ 			 *          finishes.

@@ -1,0 +1,5 @@
+#!/bin/sh
+# The saved SPI overlay was imported before the merged root was mounted.
+echo mainline-preinit | cat /proc/uptime - >> /tmp/.preinit.time
+/opt/mainline-prepare
+exit 0

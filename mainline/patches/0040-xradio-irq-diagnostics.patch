@@ -1,0 +1,69 @@
+--- a/bh.c
++++ b/bh.c
+@@ -11,6 +11,7 @@
+ 
+ #include <net/mac80211.h>
+ #include <linux/kthread.h>
++#include <linux/moduleparam.h>
+ 
+ #include "xradio.h"
+ #include "bh.h"
+@@ -18,6 +19,22 @@
+ #include "wsm.h"
+ #include "sdio.h"
+ 
++/* Diagnostic counters, reset on module reload; no change to RX scheduling. */
++static int xradio_diag_get(char *buf, const struct kernel_param *kp)
++{
++    return scnprintf(buf, PAGE_SIZE, "%d\n", atomic_read(kp->arg));
++}
++static const struct kernel_param_ops xradio_diag_ops = { .get = xradio_diag_get };
++#define XR_DIAG(name) \
++    static atomic_t name = ATOMIC_INIT(0); \
++    module_param_cb(name, &xradio_diag_ops, &name, 0444)
++XR_DIAG(diag_irqs);
++XR_DIAG(diag_timeouts);
++XR_DIAG(diag_recoveries);
++XR_DIAG(diag_late_irq);
++XR_DIAG(diag_no_irq);
++XR_DIAG(diag_poll_errors);
++
+ /* TODO: Verify these numbers with WSM specification. */
+ #define DOWNLOAD_BLOCK_SIZE_WR	(0x1000 - 4)
+ /* an SPI message cannot be bigger than (2"12-1)*2 bytes
+@@ -78,6 +95,7 @@
+ 
+ void xradio_irq_handler(struct xradio_common *hw_priv)
+ {
++	atomic_inc(&diag_irqs);
+ 	xradio_bh_wakeup(hw_priv);
+ }
+ 
+@@ -775,8 +793,25 @@
+ 			break;
+ 		} else if (!status) {
+ 			/* check if there is data waiting but we missed the interrupt*/
+-			if (xradio_bh_rx_availlen(hw_priv) > 0) {
+-				dev_warn(hw_priv->pdev, "missed interrupt\n");
++			int irq_before = atomic_read(&diag_irqs);
++			int pending_before = atomic_read(&hw_priv->bh_tx);
++			int available = xradio_bh_rx_availlen(hw_priv);
++			int irq_after = atomic_read(&diag_irqs);
++			int pending_after = atomic_read(&hw_priv->bh_tx);
++			atomic_inc(&diag_timeouts);
++			if (available < 0)
++				atomic_inc(&diag_poll_errors);
++			if (available > 0) {
++				atomic_inc(&diag_recoveries);
++				if (irq_after != irq_before) {
++					/* An IRQ raced with the watchdog's SDIO read. */
++					atomic_inc(&diag_late_irq);
++					dev_dbg(hw_priv->pdev, "RX became ready during watchdog probe; IRQ observed\n");
++				} else {
++					atomic_inc(&diag_no_irq);
++					dev_warn(hw_priv->pdev, "missed interrupt: irq=%d->%d pending=%d->%d bytes=%d\n",
++						irq_before, irq_after, pending_before, pending_after, available);
++				}
+ 				if(xradio_bh_exchange(hw_priv) < 0){
+ 					break;
+ 				}

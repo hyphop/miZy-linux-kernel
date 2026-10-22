@@ -1,0 +1,38 @@
+From 5c994171ff9a935ea15bbc32d4cf1a8901c18730 Mon Sep 17 00:00:00 2001
+From: Flaviu Tamas <me@flaviutamas.com>
+Date: Sat, 10 Oct 2026 18:31:08 -0400
+Subject: [PATCH] Preserve the data cipher on unsupported keys
+
+Rejected management keys overwrite cipherType. With WPA2/PMF,
+AES-CMAC replaces CCMP, corrupting the ARP reply template.
+
+Update cipherType only for supported ciphers.
+
+XR819 capture: malformed plaintext ARP replies before; encrypted
+replies and successful ARP resolution after.
+---
+ keys.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/keys.c b/keys.c
+index eef9c64..f9ee286 100644
+--- a/keys.c
++++ b/keys.c
+@@ -81,7 +81,6 @@ int xradio_set_key(struct ieee80211_hw *dev, enum set_key_cmd cmd,
+ 
+ 		key->flags |= IEEE80211_KEY_FLAG_PUT_IV_SPACE;
+ 
+-		priv->cipherType = key->cipher;
+ 		switch (key->cipher) {
+ 		case WLAN_CIPHER_SUITE_WEP40:
+ 		case WLAN_CIPHER_SUITE_WEP104:
+@@ -163,6 +162,9 @@ int xradio_set_key(struct ieee80211_hw *dev, enum set_key_cmd cmd,
+ 			ret = -EOPNOTSUPP;
+ 			goto finally;
+ 		}
++
++		/* Unsupported keys must not change ARP template encryption. */
++		priv->cipherType = key->cipher;
+ 		ret = WARN_ON(wsm_add_key(hw_priv, wsm_key, priv->if_id));
+ 		if (!ret)
+ 			key->hw_key_idx = idx;
